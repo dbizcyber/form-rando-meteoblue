@@ -1120,7 +1120,7 @@ function setRecenterButtonVisible(visible){
         if (!valeur || valeur === lastValue) return;
         lastValue = valeur;
 
-        fetch("https://VOTRE-PROJET.vercel.app/api/meteoblue")
+        fetch("https://form-rando-meteoblue-30zblyk8a-bizards-projects-1eb07f32.vercel.app")
             .then(r => r.json())
             .then(data => {
                 if (data.signedUrl) {
