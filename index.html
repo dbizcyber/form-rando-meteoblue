@@ -1101,9 +1101,6 @@ function setRecenterButtonVisible(visible){
 
 </script>
 
-
-
-
 <!-- Champ requis pour Meteoblue -->
 <label for="parking-depart">Parking de départ Randonnée :</label>
 <input type="text" id="parking-depart" placeholder="Ex : Parking du col de la Gineste">
@@ -1111,6 +1108,28 @@ function setRecenterButtonVisible(visible){
 <!-- ========================= -->
 <!-- SCRIPT METEOBLUE (AJOUTÉ PLUS TARD À L’ÉTAPE 4) -->
 <!-- ========================= -->
+<script>
+(function () {
+    const input = document.getElementById("parking-depart");
+    if (!input) return;
+
+    let lastValue = "";
+
+    input.addEventListener("change", function () {
+        const valeur = input.value.trim();
+        if (!valeur || valeur === lastValue) return;
+        lastValue = valeur;
+
+        fetch("https://VOTRE-PROJET.vercel.app/api/meteoblue")
+            .then(r => r.json())
+            .then(data => {
+                if (data.signedUrl) {
+                    window.open(data.signedUrl, "_blank", "noopener");
+                }
+            });
+    });
+})();
+</script>
 
 </body>
 </html>
