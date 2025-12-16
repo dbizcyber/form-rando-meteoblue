@@ -1098,32 +1098,6 @@ function setRecenterButtonVisible(visible){
   if(!btn) return;
   btn.style.display = visible ? "inline-block" : "none";
 }
-<script>
-(function () {
-    const input = document.getElementById("parking-depart");
-    if (!input) return;
-
-    let lastValue = "";
-
-    input.addEventListener("change", function () {
-        const valeur = input.value.trim();
-        if (!valeur || valeur === lastValue) return;
-        lastValue = valeur;
-
-        // Appel API serveur (voir partie 2)
-        const url = "/meteoblue-signature?lieu=" + encodeURIComponent(valeur);
-
-        fetch(url)
-            .then(r => r.json())
-            .then(data => {
-                if (data && data.signedUrl) {
-                    window.open(data.signedUrl, "_blank", "noopener");
-                }
-            })
-            .catch(err => console.error("Meteoblue error:", err));
-    });
-})();
-</script>
 
 </script>
 
