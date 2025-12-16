@@ -1110,26 +1110,38 @@ function setRecenterButtonVisible(visible){
 <script>
 (function () {
     const input = document.getElementById("parking-depart");
-    if (!input) return;
+    if (!input) {
+        console.error("Champ parking-depart introuvable");
+        return;
+    }
 
     let lastValue = "";
 
-    input.addEventListener("change", function () {
+    input.addEventListener("blur", function () {
         const valeur = input.value.trim();
-        if (!valeur || valeur === lastValue) return;
+        if (!valeur || valeur === lastValue) {
+            return;
+        }
         lastValue = valeur;
 
-        fetch("fetch("https://form-rando-meteoblue.vercel.app/api/meteoblue")
-)
-            .then(r => r.json())
-            .then(data => {
-                if (data.signedUrl) {
+        fetch("https://form-rando-meteoblue.vercel.app/api/meteoblue")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data && data.signedUrl) {
                     window.open(data.signedUrl, "_blank", "noopener");
+                } else {
+                    console.error("Réponse API invalide", data);
                 }
+            })
+            .catch(function (err) {
+                console.error("Erreur Meteoblue :", err);
             });
     });
 })();
 </script>
+
 
 </body>
 </html>
