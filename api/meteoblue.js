@@ -1,39 +1,29 @@
-import crypto from "crypto";
-
-export default function handler(req, res) {
-    try {
-        const SHARED_SECRET = process.env.METEOBLUE_SECRET;
-        const API_KEY = process.env.METEOBLUE_KEY;
-
-        if (!SHARED_SECRET) {
-            return res.status(500).json({ error: "METEOBLUE_SECRET manquant" });
-        }
-
-        if (!API_KEY) {
-            return res.status(500).json({ error: "METEOBLUE_KEY manquant" });
-        }
-
-        const lat = 47.1;
-        const lon = 8.6;
-        const expire = 1924948800;
-
-        const query =
-            `/packages/basic-1h?lat=${lat}&lon=${lon}` +
-            `&apikey=${API_KEY}&expire=${expire}`;
-
-        const sig = crypto
-            .createHmac("sha256", SHARED_SECRET)
-            .update(query)
-            .digest("hex");
-
-        return res.status(200).json({
-            signedUrl: `https://my.meteoblue.com${query}&sig=${sig}`
-        });
-
-    } catch (err) {
-        return res.status(500).json({
-            error: "Exception serveur",
-            message: err.message
-        });
+<script>
+(function () {
+    const input = document.getElementById("parking-depart");
+    if (!input) {
+        console.error("Champ parking-depart introuvable");
+        return;
     }
-}
+
+    let lastValue = "";
+
+    input.addEventListener("blur", function () {
+        const valeur = input.value.trim();
+        if (!valeur || valeur === lastValue) return;
+        lastValue = valeur;
+
+        fetch("https://form-rando-meteoblue.vercel.app/api/meteoblue")
+            .then(response => response.json())
+            .then(data => {
+                if (data.signedUrl) {
+                    window.open(data.signedUrl, "_blank", "noopener");
+                } else {
+                    console.error("Réponse API invalide", data);
+                }
+            })
+            .catch(err => console.error("Erreur Meteoblue :", err));
+    });
+})();
+</script>
+
