@@ -1103,35 +1103,37 @@ function setRecenterButtonVisible(visible){
 <!-- ========================= -->
 <!-- SCRIPT METEOBLUE (AJOUTÉ PLUS TARD À L’ÉTAPE 4) -->
 <!-- ========================= -->
-<script>
+<script id="meteoblue-script">
 (function () {
     const input = document.getElementById("parking-depart");
-    if (!input) return;
+    if (!input) {
+        console.error("parking-depart introuvable");
+        return;
+    }
 
-    let lastValue = "";
+    let dejaOuvert = false;
 
     input.addEventListener("blur", function () {
+        if (dejaOuvert) return;
+
         const valeur = input.value.trim();
-        if (!valeur || valeur === lastValue) return;
-        lastValue = valeur;
+        if (!valeur) return;
 
         fetch("https://form-rando-meteoblue.vercel.app/api/meteoblue")
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (data) {
+            .then(r => r.json())
+            .then(data => {
                 if (data && data.signedUrl) {
-                    // ✅ OUVERTURE DE METEOBLUE (PAS DE L’API)
+                    dejaOuvert = true;
                     window.open(data.signedUrl, "_blank", "noopener");
                 } else {
-                    console.error("signedUrl manquante", data);
+                    console.error("signedUrl absente", data);
                 }
             })
-            .catch(function (err) {
-                console.error("Erreur Meteoblue :", err);
-            });
+            .catch(err => console.error("Erreur Meteoblue", err));
     });
 })();
+</script>
+
 </script>
 
 
