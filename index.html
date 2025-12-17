@@ -6,1135 +6,1025 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2a66c7">
 
-<h1>Formulaire randonnée</h1>
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Traceur Rando">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
 
-<!-- ========================= -->
-<!-- ZONE FORMULAIRE EXISTANT -->
-<!-- ========================= -->
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire de Randonnée - Moderne Pastel 12.1 du 261125</title>
+<title>Traceur randonnée dev_menu_6.6.4.2 mobile - IBP - thunderforest (rev)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-body {
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
-  background-color: #f4f9f9;
-  color: #333;
-  margin: 0;
-  padding: 20px;
-  line-height: 1.6;
-}
-
-h2 {
-  font-size: 1.4em;
-  padding: 8px 14px;
-  border-radius: 10px;
-  color: #fff;
-  margin-top: 30px;
-}
-
-h2:nth-of-type(1) { background-color: #7ec8e3; }
-h2:nth-of-type(2) { background-color: #a2d9ce; }
-h2:nth-of-type(3) { background-color: #f7d794; }
-h2:nth-of-type(4) { background-color: #c5b3e6; }
-h2:nth-of-type(5) { background-color: #81c784; }
-
-label {
-  display: block;
-  margin-top: 10px;
-  font-weight: 500;
-}
-
-input, select, textarea {
-  width: 100%;
-  padding: 8px 10px;
-  margin-top: 4px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-size: 15px;
-  background-color: #fff;
-}
-
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: #7ec8e3;
-  box-shadow: 0 0 0 3px rgba(126,200,227,0.2);
-}
-
-/* === Champs courts === */
-#date, 
-#heure-rv, 
-#duree, 
-#ibp, 
-#technicite, 
-#risque {
-  width: 180px;
-}
-
-#trajet-km, 
-#cout-autoroute {
-  width: 140px;
-}
-
-#organisateur {
-  width: 300px;
-}
-
-/* Alignement horizontal pour certains groupes */
-div[style*="flex"] input,
-div[style*="flex"] select {
-  flex: 0 0 auto;
-}
-
-/* === Boutons === */
-button {
-  padding: 10px 22px;
-  background-color: #7ec8e3;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
-}
-
-button:hover {
-  background-color: #5fb0cf;
-}
-
-/* === Containers === */
-.resume-container {
-  border: 1px solid #ccc;
-  background-color: #fff;
-  padding: 15px;
-  margin-top: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-section {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 15px 20px;
-  margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-hr {
-  border: none;
-  height: 1px;
-  background-color: #e0e0e0;
-  margin: 20px 0;
-}
-
-/* === Résumé === */
-#resultat {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  white-space: pre-wrap;
-  text-align: left !important;
-}
-
-/* === Messages d'erreur et dropdown === */
-.message-erreur {
-  display: none;
-  background-color: #e57373;
-  color: white;
-  padding: 5px;
-  margin-top: 5px;
-  border-radius: 4px;
-}
-
-.results {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  border: 1px solid #ccc;
-  max-height: 180px;
-  overflow: auto;
-  background: #fff;
-  position: absolute;
-  width: calc(100% - 16px);
-  z-index: 1000;
-}
-
-.results li {
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
-.results li[aria-selected="true"] {
-  background: #e6f4f1;
-}
-
-.dropdown-wrap {
-  position: relative;
-}
-</style>
-
-<!-- Leaflet CSS & JS (added for interactive map selection) -->
+<!-- Leaflet / libs -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- togeojson (conversion GPX -> GeoJSON) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/togeojson/0.16.0/togeojson.min.js"></script>
+<!-- togpx pour export GPX -->
+<script src="https://unpkg.com/togpx@0.5.0/togpx.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 
-
-
-
-<!-- Le reste du contenu HTML et JS reste inchangé -->
-<!-- Copie intégrale du formulaire original avec ce style -->
-<!-- (Colle ici tout ton code HTML et JavaScript déjà présent dans newformrandos.htm) -->
-
-
-<h2>Modèle Feuille de Route</h2>
-<p>La sélection de votre rando s’effectue dès la saisie des premières lettres. Accents requis. Si elle n’apparaît pas, choisissez "Autre…" et saisissez votre titre.</p>
-
-<label for="rechercheRando">Recherche de randonnée :</label>
-<div class="dropdown-wrap">
-  <input id="rechercheRando" placeholder="Tapez 2 lettres pour filtrer..." autocomplete="off" inputmode="text" aria-autocomplete="list" aria-controls="resultsList" aria-expanded="false">
-  <ul id="resultsList" class="results" role="listbox" tabindex="-1" aria-label="Résultats" style="display:none"></ul>
-</div>
-
-<select id="nom" aria-hidden="true" style="display:none">
-  <option value="" disabled="" selected="">-- Choisir une randonnée --</option>
-  <!-- Exemple d'options, tu peux réinjecter la liste complète si besoin -->
-  <option value="Alpes de Haute Provence">Alpes de Haute Provence</option>
-  <option value="Ardèche">Ardèche</option>
-  <option value="Calanques">Calanques</option>
-  <option value="Drôme (provençale)">Drôme (provençale)</option>
-  <option value="Gard">Gard</option>
-  <option value="Luberon">Luberon</option>
-  <option value="Vaucluse">Vaucluse</option>
-  <option value="Aiguebelle">Aiguebelle</option>
-  <option value="Alleins">Alleins</option>
-  <option value="Alpilles">Alpilles</option>
-  <option value="Alpilles : Les crêtes par le mont Gaussier">Alpilles : Les crêtes par le mont Gaussier</option>
-  <option value="Alpilles tour d'Auge">Alpilles tour d'Auge</option>
-  <option value="Alpilles, du lac de st Remy aux Baux">Alpilles, du lac de st Remy aux Baux</option>
-  <option value="Arche du Portalas depuis Bonnieux">Arche du Portalas depuis Bonnieux</option>
-  <option value="Au coeur de la Barthelasse">Au coeur de la Barthelasse</option>
-  <option value="Autour de Sivergues">Autour de Sivergues</option>
-  <option value="Autour du Château d'Allègre">Autour du Château d'Allègre</option>
-  <option value="Badarel">Badarel</option>
-  <option value="Balcons du Rhône au départ de Boulbon">Balcons du Rhône au départ de Boulbon</option>
-  <option value="Baumes de Venise">Baumes de Venise</option>
-  <option value="Baumeyrane les Baux">Baumeyrane les Baux</option>
-  <option value="Baux, Lac de St Rémy">Baux, Lac de St Rémy</option>
-  <option value="Beaucet ST Gens">Beaucet ST Gens</option>
-  <option value="Bedoin, les 5 bergeries">Bedoin, les 5 bergeries</option>
-  <option value="Bedoin, les 9 bergeries">Bedoin, les 9 bergeries</option>
-  <option value="Bergerie de l'avocat">Bergerie de l'avocat</option>
-  <option value="Bergeries sur les hauteurs de Villes-sur-Auzon;">Bergeries sur les hauteurs de Villes-sur-Auzon;</option>
-  <option value="Bérigoule Est">Bérigoule Est</option>
-  <option value="Bérigoule Ouest">Bérigoule Ouest</option>
-  <option value="Bois de St Martin. Départ : Le Garn 07">Bois de St Martin. Départ : Le Garn 07</option>
-  <option value="Bonnieux  -  Cadoucès">Bonnieux  -  Cadoucès</option>
-  <option value="Borie de Clapeyrouse à Saumane">Borie de Clapeyrouse à Saumane</option>
-  <option value="Boucle autour de Cairanne">Boucle autour de Cairanne</option>
-  <option value="Brame du Cerf dans le Ventoux">Brame du Cerf dans le Ventoux</option>
-  <option value="Buis les Baronnies la Nible">Buis les Baronnies la Nible</option>
-  <option value="Buoux Fort et Pelat">Buoux Fort et Pelat</option>
-  <option value="Buoux, le rocher percé">Buoux, le rocher percé</option>
-  <option value="Cabane du mouflon, Savoillan">Cabane du mouflon, Savoillan</option>
-  <option value="Cabrieres  d'Avignon , La forêt de cèdres , abbaye de Sénanque">Cabrieres  d'Avignon , La forêt de cèdres , abbaye de Sénanque</option>
-  <option value="Caisses JeanJean Marche Téléthon">Caisses JeanJean Marche Téléthon</option>
-  <option value="Capelle et Masmolène">Capelle et Masmolène</option>
-  <option value="Capitelles et castillones, Aramon (30)">Capitelles et castillones, Aramon (30)</option>
-  <option value="Capitelles, Moulin de Carrière, Uzès">Capitelles, Moulin de Carrière, Uzès</option>
-  <option value="Caroux">Caroux</option>
-  <option value="Carro">Carro</option>
-  <option value="Cascades de Sautadet">Cascades de Sautadet</option>
-  <option value="Castillon du Gard">Castillon du Gard</option>
-  <option value="Chapelle de la Sainte Baume, la Montagne et la Plaine de Sabran">Chapelle de la Sainte Baume, la Montagne et la Plaine de Sabran</option>
-  <option value="Cirque des walkyries Marseille">Cirque des walkyries Marseille</option>
-  <option value="Clansayes (26)">Clansayes (26)</option>
-  <option value="Cluyer et les Aiguiers, départ de Saint Saturnin d'Apt">Cluyer et les Aiguiers, départ de Saint Saturnin d'Apt</option>
-  <option value="Collias par le vire des Chèvres">Collias par le vire des Chèvres</option>
-  <option value="Combe de Lioux">Combe de Lioux</option>
-  <option value="Combe Obscure et du Chat">Combe Obscure et du Chat</option>
-  <option value="Concluses">Concluses</option>
-  <option value="Côte bleue au départ de Port Mejean">Côte bleue au départ de Port Mejean</option>
-  <option value="Crête du Grand Luberon au départ de Vaugines">Crête du Grand Luberon au départ de Vaugines</option>
-  <option value="Crêtes Arfuyen et le Saint Amand, Crestet">Crêtes Arfuyen et le Saint Amand, Crestet</option>
-  <option value="Crêtes d’Arfuyen et Saint Amand,départ du col de la chaîne, Dentelles de Montmirail">Crêtes d’Arfuyen et Saint Amand,départ du col de la chaîne, Dentelles de Montmirail</option>
-  <option value="Crêtes de romanin par le mont Gaussier.">Crêtes de romanin par le mont Gaussier.</option>
-  <option value="Crêtes des Alpilles">Crêtes des Alpilles</option>
-  <option value="Crêtes du Barroux">Crêtes du Barroux</option>
-  <option value="Crêtes du Ventoux">Crêtes du Ventoux</option>
-  <option value="Cucuron Moure Nègre">Cucuron Moure Nègre</option>
-  <option value="De Collias À Sainte Veredeme">De Collias À Sainte Veredeme</option>
-  <option value="Dentelles sarrasines et clapis">Dentelles sarrasines et clapis</option>
-  <option value="Départ Beaumes-de-Venise">Départ Beaumes-de-Venise</option>
-  <option value="Départ Saignon">Départ Saignon</option>
-  <option value="Estezargues (30)">Estezargues (30)</option>
-  <option value="Eygalières boucle par les vallons">Eygalières boucle par les vallons</option>
-  <option value="Eygalieres-petit-et-gros-calans">Eygalieres-petit-et-gros-calans</option>
-  <option value="Eygalières, tour de la baume Brignolle">Eygalières, tour de la baume Brignolle</option>
-  <option value="Eygières Aureille">Eygières Aureille</option>
-  <option value="Falaise de Lioux">Falaise de Lioux</option>
-  <option value="Falaises et gorges du Gardon au départ de Collias">Falaises et gorges du Gardon au départ de Collias</option>
-  <option value="Fond de l'Orme, Mérindol">Fond de l'Orme, Mérindol</option>
-  <option value="Fontaine de Vaucluse">Fontaine de Vaucluse</option>
-  <option value="Forêt des cedres, La Coste">Forêt des cedres, La Coste</option>
-  <option value="Forêt domaniale Sault Col Abeilles">Forêt domaniale Sault Col Abeilles</option>
-  <option value="Garde Grosse Châteauneuf de Bordette">Garde Grosse Châteauneuf de Bordette</option>
-  <option value="Gardon rive droite, Chapelle l'Ermitage">Gardon rive droite, Chapelle l'Ermitage</option>
-  <option value="Gorges d’ Oppedette, abbaye de Valsainte, saut du moine">Gorges d’ Oppedette, abbaye de Valsainte, saut du moine</option>
-  <option value="Goult lumieres">Goult lumieres</option>
-  <option value="Grand barbeirol au départ de crillon le brave">Grand barbeirol au départ de crillon le brave</option>
-  <option value="Guidon du Bouquet (30)">Guidon du Bouquet (30)</option>
-  <option value="Hauts de Gordes">Hauts de Gordes</option>
-  <option value="Hivernale dans le Ventoux - entre face sud et face nord">Hivernale dans le Ventoux - entre face sud et face nord</option>
-  <option value="Ile de la Barthelasse">Ile de la Barthelasse</option>
-  <option value="Lacoste">Lacoste</option>
-  <option value="Lacoste chapelle St Véran, abbaye de St Hilaire">Lacoste chapelle St Véran, abbaye de St Hilaire</option>
-  <option value="Lafare">Lafare</option>
-  <option value="Lagnes">Lagnes</option>
-  <option value="Lagnes, Fontaine de Vaucluse par  l'aqueduc">Lagnes, Fontaine de Vaucluse par  l'aqueduc</option>
-  <option value="Lagon bleu Maussane">Lagon bleu Maussane</option>
-  <option value="Lamanon Roquemartine">Lamanon Roquemartine</option>
-  <option value="Lance face Nord">Lance face Nord</option>
-  <option value="Lance par le rocher des aures">Lance par le rocher des aures</option>
-  <option value="Lauris">Lauris</option>
-  <option value="Lauris Cap de Serre (84)">Lauris Cap de Serre (84)</option>
-  <option value="Lioux, les falaises de la Madeleine">Lioux, les falaises de la Madeleine</option>
-  <option value="Luberon sud, le Bastidon du Roumiguier">Luberon sud, le Bastidon du Roumiguier</option>
-  <option value="Luberon, la Baume Martin">Luberon, la Baume Martin</option>
-  <option value="Malaucène, le Barroux">Malaucène, le Barroux</option>
-  <option value="Malemort du Comtat - La combe du diable">Malemort du Comtat - La combe du diable</option>
-  <option value="Massif du Barry">Massif du Barry</option>
-  <option value="Matemale Pyrénées">Matemale Pyrénées</option>
-  <option value="Mayorque gorges de la peine">Mayorque gorges de la peine</option>
-  <option value="Mejanne le Clap L'aven Peyre Haute">Mejanne le Clap L'aven Peyre Haute</option>
-  <option value="Merindol la vallée du Dégoutau">Merindol la vallée du Dégoutau</option>
-  <option value="Mollans sur Ouvèze Pierrelongue">Mollans sur Ouvèze Pierrelongue</option>
-  <option value="Monieux, gorges de la Nesque">Monieux, gorges de la Nesque</option>
-  <option value="Mont Puget ">Mont Puget </option>
-  <option value="Montagne de Linceuil (26)">Montagne de Linceuil (26)</option>
-  <option value="Montagne de Miélandre">Montagne de Miélandre</option>
-  <option value="Monts de Vaucluse Marignon">Monts de Vaucluse Marignon</option>
-  <option value="Mornas (84)">Mornas (84)</option>
-  <option value="Moulin de Javon et les baumes de Eymians et de Roustan">Moulin de Javon et les baumes de Eymians et de Roustan</option>
-  <option value="Moulin de Javron">Moulin de Javron</option>
-  <option value="Mourre Nègre">Mourre Nègre</option>
-  <option value="Mourre Nègre par Auribeau">Mourre Nègre par Auribeau</option>
-  <option value="Mourre nègre par Cucuron">Mourre nègre par Cucuron</option>
-  <option value="Mourre Nègre par Regain et la femme morte, Luberon (Nord)">Mourre Nègre par Regain et la femme morte, Luberon (Nord)</option>
-  <option value="Murs">Murs</option>
-  <option value="Nible Buis les Baronnies">Nible Buis les Baronnies</option>
-  <option value="Notre dame des neiges, la gacholle">Notre dame des neiges, la gacholle</option>
-  <option value="Ocres de Mormoiron">Ocres de Mormoiron</option>
-  <option value="Oppidum La garde d'Apt">Oppidum La garde d'Apt</option>
-  <option value="Orgon">Orgon</option>
-  <option value="Pas de la Frache">Pas de la Frache</option>
-  <option value="Pays d'Apt, Caseneuve, Colorado">Pays d'Apt, Caseneuve, Colorado</option>
-  <option value="Petit et gros Calan">Petit et gros Calan</option>
-  <option value="Pic de Bertagne">Pic de Bertagne</option>
-  <option value="Pic de Bertagne Gémenos">Pic de Bertagne Gémenos</option>
-  <option value="Pic de Faiendre">Pic de Faiendre</option>
-  <option value="Pic des Mouches au départ de Puyloubier">Pic des Mouches au départ de Puyloubier</option>
-  <option value="Pigeonnier. Départ : Eyguières">Pigeonnier. Départ : Eyguières</option>
-  <option value="Plateau d’ Orgon, chapelle de Beauregard">Plateau d’ Orgon, chapelle de Beauregard</option>
-  <option value="Plateau de Lacau et le camp de César">Plateau de Lacau et le camp de César</option>
-  <option value="Pont du gard">Pont du gard</option>
-  <option value="Portalas -  Ménerbes">Portalas -  Ménerbes</option>
-  <option value="Portalas depuis BONNIEUX">Portalas depuis BONNIEUX</option>
-  <option value="Promenade autour des Baux">Promenade autour des Baux</option>
-  <option value="Ramayettes au départ de Bédoin">Ramayettes au départ de Bédoin</option>
-  <option value="Rando d’Eyguieres à Lamanon par le Défens">Rando d’Eyguieres à Lamanon par le Défens</option>
-  <option value="Rando Gourmande">Rando Gourmande</option>
-  <option value="Raquettes à Forgeassoud">Raquettes à Forgeassoud</option>
-  <option value="Raquettes Matemale">Raquettes Matemale</option>
-  <option value="Raquettes Montclar">Raquettes Montclar</option>
-  <option value="Regalon , têtes des Buisses, gorge du Regalon">Regalon , têtes des Buisses, gorge du Regalon</option>
-  <option value="Reilhanette">Reilhanette</option>
-  <option value="Roche sur le Buis">Roche sur le Buis</option>
-  <option value="Rochers de la Madeleine et les orcres de Bedoin">Rochers de la Madeleine et les orcres de Bedoin</option>
-  <option value="Roque D'Anthéron Chemin Crêtes">Roque D'Anthéron Chemin Crêtes</option>
-  <option value="Russan - pont Saint Nicolas gorges du Gardon">Russan - pont Saint Nicolas gorges du Gardon</option>
-  <option value="Saint Etienne du Gres Notre dame du chateau">Saint Etienne du Gres Notre dame du chateau</option>
-  <option value="Saint Gens Combe de Capellan">Saint Gens Combe de Capellan</option>
-  <option value="Saint Hubert au depart du lac de Monieux">Saint Hubert au depart du lac de Monieux</option>
-  <option value="Saint Victor la Coste">Saint Victor la Coste</option>
-  <option value="Sainte Victoire par le sentier des Plaideurs">Sainte Victoire par le sentier des Plaideurs</option>
-  <option value="Sainte Victoire versant Sud, Les Clapiers">Sainte Victoire versant Sud, Les Clapiers</option>
-  <option value="Sainte-Victoire">Sainte-Victoire</option>
-  <option value="Sainte-Victoire par le sentier des Plaideurs">Sainte-Victoire par le sentier des Plaideurs</option>
-  <option value="Séguret : collines et vignobles">Séguret : collines et vignobles</option>
-  <option value="Séjour Ardèche La bombine">Séjour Ardèche La bombine</option>
-  <option value="Sentier des baliseurs dans les Alpilles">Sentier des baliseurs dans les Alpilles</option>
-  <option value="Simiane La Rotonde">Simiane La Rotonde</option>
-  <option value="Sivergues: le vallon de Petarelle, la crête et le défilé du rocher">Sivergues: le vallon de Petarelle, la crête et le défilé du rocher</option>
-  <option value="Sommet des Fourcats, départ Robion">Sommet des Fourcats, départ Robion</option>
-  <option value="Source Aramon">Source Aramon</option>
-  <option value="St Gens et la combe de Capellan">St Gens et la combe de Capellan</option>
-  <option value="St Saturnin les Apt - Le sentier des Aiguiers par le Cluyer">St Saturnin les Apt - Le sentier des Aiguiers par le Cluyer</option>
-  <option value="Tallagard et le vieux vernegues.">Tallagard et le vieux vernegues.</option>
-  <option value="Teyssières, le Cougoir">Teyssières, le Cougoir</option>
-  <option value="Theziers Gard Land's (30)">Theziers Gard Land's (30)</option>
-  <option value="Tour des étangs">Tour des étangs</option>
-  <option value="Tour des Opies retour par Civadiers">Tour des Opies retour par Civadiers</option>
-  <option value="Tour du guet (Aureille) les Civadières">Tour du guet (Aureille) les Civadières</option>
-  <option value="Tour Philipe">Tour Philipe</option>
-  <option value="Trou du furet et montagne du Serre (Drome )">Trou du furet et montagne du Serre (Drome )</option>
-  <option value="Vaison la romaine le crestet">Vaison la romaine le crestet</option>
-  <option value="Vallée de l'Eure (Uzes)">Vallée de l'Eure (Uzes)</option>
-  <option value="Vallon de l'aiguille, la forêt de cèdre">Vallon de l'aiguille, la forêt de cèdre</option>
-  <option value="Vallon des amants">Vallon des amants</option>
-  <option value="Vallon des amants (Alpilles)">Vallon des amants (Alpilles)</option>
-  <option value="Vallons et crètes autour du Barroux">Vallons et crètes autour du Barroux</option>
-  <option value="Vaumalle: Véroncle à Joucas">Vaumalle: Véroncle à Joucas</option>
-  <option value="Venasque la combe de Capellan">Venasque la combe de Capellan</option>
-  <option value="Ventabren">Ventabren</option>
-  <option value="Ventouret">Ventouret</option>
-  <option value="Ventoux, les Abeilles">Ventoux, les Abeilles</option>
-  <option value="Viens, hameaux et chapelles">Viens, hameaux et chapelles</option>
-  <option value="Village des Bories, Senancole, Senanque, vallon grande combe">Village des Bories, Senancole, Senanque, vallon grande combe</option>
-  <option value="Villages des dentelles au départ de Lafare">Villages des dentelles au départ de Lafare</option>
-  <option value="Ville/Auzon combe des Escampeaux, bergerie">Ville/Auzon combe des Escampeaux, bergerie</option>
-  <option value="autre">Autre… (saisir manuellement)</option>
-
-  <option value="autre">Autre… (saisir manuellement)</option>
-  <!-- si tu veux toutes les options, réinsère ta liste complète ici -->
-</select>
-
-<input id="autreNomRando" placeholder="Saisir le nom de la randonnée" style="display:none;width:100%;font-weight:bold;margin-top:6px">
-
-<hr>
-<label for="date">Date de la randonnée :</label>
-<input type="date" id="date" onchange="afficherJour()">
-<label>Jour de la semaine : <span id="jour-semaine"></span></label>
-
-<hr>
-<h2>Parkings</h2>
-<label for="lieu">Parking Covoiturage (modifiable)</label>
-<select id="lieu" onchange="gererAutreLieu(); setHomeFromParking();" style="font-weight: bold;">
-  <option value="" selected="" hidden="">Choisir un parking</option>
-  <option value="Parking Bricomarché - Châteaurenard">Parking Bricomarché - Châteaurenard</option>
-  <option value="Parking MIN - Châteaurenard">Parking MIN - Châteaurenard</option>
-  <option value="Parking du Stade - Châteaurenard">Parking du Stade - Châteaurenard</option>
-  <option value="Parking Super U - Châteaurenard">Parking Super U - Châteaurenard</option>
-    <option value="Parking des Allées - Châteaurenard">Parking des Allées - Châteaurenard</option>
-  <option value="autre">Autre... (saisir manuellement)</option>
-</select>
-<input type="text" id="autreLieu" maxlength="100" placeholder="Entrez un autre parking" style="display:none; margin-top:0.5rem; color:red; font-weight:bold;">
-
-<div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center;margin-top:10px;">
-  <label for="heure-rv">Heure de rendez-vous (hh:mm) :</label>
-  <input type="time" id="heure-rv" onchange="calculerHeureDepart()">
-  <label><strong>Heure de départ prévue : <span id="heure-depart"></span></strong></label>
-</div>
-
-<label for="description">Trajet suggéré :</label>
-<textarea id="description" rows="2" maxlength="1000"></textarea>
-
-<label for="parking-depart">Parking de départ Randonnée : (Saisissez un nom de village et ajustez le parking avec votre souris sur la carte)</label>
-<input type="text" id="parking-depart" maxlength="200" placeholder="Ex: Bonnieux...">
-<button type="button" onclick="updateParkingMap()">Afficher le parking</button>
-
-<!-- La carte apparaîtra ici + bouton recentrer trajet -->
-<div id="parkingMap" style="display:none; margin-top:15px; width:100%; height:400px; border-radius:10px; overflow:hidden;"></div>
-<!-- Bouton Recentrer : utilisation d'onclick pour fiabilité -->
-<button type="button" id="btn-recentrer-trajet" style="display:none; margin-top:10px;" onclick="recenterRoute()">
-  📍 Recentrer sur le trajet
-</button>
-
-
-<hr>
-<h2>Coûts</h2>
-<div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
-  <label for="trajet-km">Trajet en km :</label>
-  <input type="number" id="trajet-km" oninput="calculerCouts()">
-  <label for="cout-autoroute">Coût de l'autoroute (€) :</label>
-  <input type="number" id="cout-autoroute" oninput="calculerCouts()">
-</div>
-<p><strong>Total trajet : <span id="total-trajet">0</span> €</strong></p>
-<p>Coût total : <span id="cout-total">0</span> €</p>
-<p>Coût covoiturage (par 4) : <span id="covoit4">0</span> €</p>
-<p>Coût covoiturage (par 5) : <span id="covoit5">0</span> €</p>
-
-<hr>
-<h2>Informations techniques</h2>
 <style>
-  /* Conteneur général du formulaire */
-  .form-wrapper {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
+  :root{
+    --dock-bottom: 14px;
+    --dock-bg: rgba(0,0,0,0.10);
+    --btn-bg: #4caf50; /* vert */
+    --accent: #2a66c7;
+  }
+  html,body { height:100%; margin:0; font-family:Arial,Helvetica,sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  #map { height: 100vh; width:100%; }
+  body { overflow-x:hidden; }
+  /* Top bar (search + import) */
+  .top-bar{
+    position: fixed;
+    top: calc(6px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    display:flex;
+    gap:8px;
+    z-index:1400;
+    padding:6px 10px;
+    border-radius:20px;
+    align-items:center;
+    pointer-events:auto;
+  }
+  .top-bar input[type="text"], .top-bar input[type="search"]{ padding:6px 10px; border-radius:12px; border: none; height:34px; width:160px; }
+  .file-pill { display:inline-flex; align-items:center; gap:8px; border-radius:12px; padding:6px 8px; 
+  background:transparent !important; height:34px; }
+  .file-pill button { border:none; background:var(--accent); color:white; padding:6px 10px; border-radius:8px; cursor:pointer; }
+
+  /* Dock (bottom) safe area aware */
+  .leaflet-control.custom-panel{
+    position: fixed !important;
+    bottom: calc(var(--dock-bottom) + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index:1500;
+    pointer-events:auto;
+    background: transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+    padding: 0;
+    width: auto;
+  }
+  .icon-grid { display:flex; gap:8px; padding:6px; background: var(--dock-bg); border-radius:28px; align-items:center; }
+  .icon-btn{ width:36px; height:36px; border-radius:50%; border:none; background:var(--btn-bg); color:#fff; font-size:16px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.25); }
+  .icon-btn.secondary{ background: rgba(0,0,0,0.22); }
+  .icon-btn.recording{ background: rgba(180,0,0,0.6); animation: pulse 1.2s infinite; }
+  @keyframes pulse{ 0%{transform:scale(1);}50%{transform:scale(1.08);}100%{transform:scale(1);} }
+
+  /* ensure dock not flush to bottom on older iOS */
+  @supports (padding: env(safe-area-inset-bottom)) {
+    .leaflet-control.custom-panel { padding-bottom: calc(env(safe-area-inset-bottom)); }
   }
 
-  /* Blocs rando (distance, dénivelé, durée) */
-  .bloc-form {
-    margin-bottom: 1.2rem;
-    text-align: center;
+  /* Info panel */
+.container{
+  position: fixed;
+  bottom: calc(0px + env(safe-area-inset-bottom));
+  left:0;
+  width:100%;
+  height:260px;
+  background:#f2f0f0;
+  color:#403e3e;
+  z-index:1400;
+  overflow:auto;
+  padding:10px;
+  box-sizing:border-box;
+  transition: transform 0.28s ease;
+}
+
+/* état par défaut = fermé mais poignée visible */
+.container.closed{
+  transform: translateY(calc(100% - 28px));
+}
+
+.container.open{
+  transform: translateY(0%);
+}
+
+
+  .info-toggle { position: fixed; bottom: calc(60px + env(safe-area-inset-bottom)); left:10px; z-index:1500; background:var(--accent); color:white; border:none; border-radius:20px; padding:8px 14px; cursor:pointer; }
+
+  /* ==== POIGNÉE DU PANNEAU INFOS ==== */
+
+.info-handle{
+  width: 42px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(42,102,199,0.9);
+  margin: 6px auto 10px auto;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(42,102,199,0.6);
+}
+
+  /* small screens */
+  @media (max-width:420px){
+    .top-bar input[type="search"]{ width:120px; font-size:13px; }
+    .icon-btn{ width:30px; height:30px; font-size:14px; }
   }
 
-  .bloc-form label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 0.3rem;
-  }
+  .tooltip-mobile{ position:absolute; background:rgba(0,0,0,0.85); color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; z-index:2000; display:none; pointer-events:none; }
 
-  .bloc-form input {
-    display: block;
-    margin: 0.4rem auto 0 auto;
-    width: 70%;
-    min-width: 110px;
-    padding: 6px 8px;
-    font-size: 1rem;
-    border-radius: 6px;
-  }
+  /* searchResults */
+  #searchResults{ position:absolute; top:48px; left:50%; transform:translateX(-50%); width:320px; max-width:calc(100% - 20px); background:#fff; color:#111; box-shadow:0 6px 18px rgba(0,0,0,0.12); border-radius:8px; z-index:3000; display:none; max-height:260px; overflow:auto; }
 
-  /* Couleurs spécifiques */
-  .bloc-distance label, .bloc-distance input {
-    color: #1b8a2f;
-    border: 2px solid #1b8a2f;
-    font-weight: bold;
-  }
+  /* small cosmetics for import feedback */
+  #importStatus{ font-size:13px; color:#333; margin-left:8px; }
 
-  .bloc-denivele label, .bloc-denivele input {
-    color: #005bbb;
-    border: 2px solid #005bbb;
-    font-weight: bold;
-  }
+  /* make map full height when content hidden */
+  body.fullscreen #map { height:100vh; }
 
-  .bloc-duree input {
-    border: 2px solid #555;
-  }
+  /* keep touch interactions nice on leaflet */
+  .leaflet-container { touch-action: pan-x pan-y; -webkit-touch-callout: none; }
 
-  /* Blocs IBP / Technicité / Risque / Remarques */
-  .bloc-champ {
-    margin-bottom: 1.2rem;
-    text-align: center;
-  }
+/* ==== DOCK AMOVIBLE (BOTTOM DRAWER) ==== */
 
-  .bloc-champ label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 0.3rem;
-  }
+.leaflet-control.custom-panel{
+  transition: transform 0.28s ease;
+  touch-action: pan-y;
+}
 
-  .bloc-champ input,
-  .bloc-champ textarea {
-    display: block;
-    width: 80%;
-    max-width: 350px;
-    margin: 0.3rem auto;
-    padding: 6px 8px;
-    border-radius: 6px;
-    border: 2px solid #555;
-    font-size: 1rem;
-  }
+/* poignée toujours visible */
+.dock-handle{
+  width: 48px;                 /* plus large */
+  height: 6px;                 /* plus épais */
+  border-radius: 4px;
+  background: #c7302a;         /* ROUGE */
+  margin: 8px auto 10px auto;
+  box-shadow: 
+    0 0 8px rgba(199,48,42,0.9),
+    0 0 14px rgba(199,48,42,0.6); /* glow visible */
+}
+.leaflet-control.custom-panel.closed .dock-handle{
+  box-shadow:
+    0 0 12px rgba(199,48,42,1),
+    0 0 20px rgba(199,48,42,0.9);
+}
 
-  .message-erreur {
-    color: red;
-    font-size: 0.9rem;
-    display: none;
-    margin-top: 0.3rem;
-  }
+/* dock fermé → descend MAIS garde la poignée visible */
+.leaflet-control.custom-panel.closed{
+  transform: translateX(-50%) translateY(48px);
+}
 
-  /* Paragraphes suivants (mise en page normale) */
-  .contenu-normal {
-    text-align: left;
-    margin: 1rem auto;
-    max-width: 700px; /* largeur confortable sur desktop */
-  }
 
-  .contenu-normal p {
-    margin-bottom: 1rem;
-  }
 </style>
+</head>
+<body>
 
-<!-- FORMULAIRE -->
-<div class="form-wrapper">
+  <div id="map"></div>
 
-  <div class="bloc-form bloc-distance">
-    <label for="km">Distance de la randonnée - marche (km) :</label>
-    <input type="number" id="km" onchange="verifierInfos(); ajusterLargeur(this);" oninput="verifierInfos(); ajusterLargeur(this);">
+  <!-- STARTUP POPUP -->
+  <div id="startupPopup" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:5000;font-family:Arial;">
+    <div style="background:#fff;padding:18px;border-radius:12px;max-width:340px;text-align:left;box-shadow:0 6px 20px rgba(0,0,0,0.25);">
+      <h3 style="margin:0 0 6px 0;">👋 Bienvenue</h3>
+      <p style="margin:0 0 8px 0;font-size:13px;color:#333;">Version 6.6.4.1. Menus Boutons et Infos amovibles avec différenciation des poignées. Activez le GPS pour un suivi optimal. Si les GPX semblent non reconnus sur mobile, utilisez le bouton “Importer GPX”.</p>
+      <div style="text-align:right"><button onclick="closeStartupPopup()" style="background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;">OK</button></div>
+    </div>
   </div>
 
-  <div class="bloc-form bloc-denivele">
-    <label for="denivele">Dénivelé (mètres) :</label>
-    <input type="number" id="denivele" onchange="verifierInfos(); ajusterLargeur(this);" oninput="verifierInfos(); ajusterLargeur(this);">
+  <!-- TOP BAR: recherche + import -->
+  <div class="top-bar" role="region" aria-label="recherche et import gpx">
+    <input id="searchInput" type="search" placeholder="🔍 Rechercher un lieu" aria-label="Rechercher un lieu">
+    <!-- visible tactile import button -->
+    <div class="file-pill" role="button" aria-label="Importer GPX">
+      <span></span>
+      <button id="openFileBtn" title="Importer GPX">Importer GPX</button>
+      <span id="importStatus" aria-live="polite"></span>
+    </div>
+    <!-- hidden actual file input (import de tous gpx)-->
+    <input 
+  type="file" 
+  id="importFile" 
+  accept=".gpx,application/gpx+xml,application/xml,text/xml,application/octet-stream"
+style="display:none;"
+  aria-hidden="true"
+  />
+
   </div>
 
-  <div class="bloc-form bloc-duree">
-    <label for="duree">Durée totale (hh:mm) :</label>
-    <input type="time" id="duree">
+  <div id="searchResults"></div>
+
+  <!-- info panel -->
+  <div class="container" aria-live="polite">
+    <!-- POIGNÉE DU PANNEAU INFOS (À AJOUTER ICI) -->
+  <div class="info-handle" aria-label="Ouvrir / fermer les infos"></div>
+
+    <div id="distance"></div>
+    <canvas id="elevationChart" style="width:100%;height:160px;"></canvas>
+    <form id="formuploadajax" enctype="multipart/form-data" style="display:none;">
+      <input type="hidden" name="key" value="ifwh7wlwykzixzxcg6rb">
+      <input type="hidden" name="type" value="hiking">
+      <input type="file" id="ibpFile" name="file" accept=".gpx">
+    </form>
+    <div id="obtain"></div>
   </div>
 
-</div>
-<!-- FIN km rando denivele et duree -->
+  <div id="mobileTooltip" class="tooltip-mobile"></div>
 
-<div class="bloc-champ">
-  <label for="ibp">IBP (HKG) :</label>
-  <input type="number" id="ibp" oninput="afficherIBP()">
-  <p><strong>Effort (IBP) : <span id="effort">❌ IBP non renseigné</span></strong></p>
-</div>
-
-<div class="bloc-champ">
-  <label for="technicite">Technicité (1-5) :</label>
-  <input type="number" id="technicite" oninput="validerChamp('technicite'); afficherDifficulte('technicite','technicite-label');" min="1" max="5">
-  <p><strong>Technicité : <span id="technicite-label">Non renseigné</span></strong></p>
-  <p id="technicite-erreur" class="message-erreur">Veuillez entrer une valeur entre 1 et 5.</p>
-</div>
-
-<div class="bloc-champ">
-  <label for="risque">Risque (1-5) :</label>
-  <input type="number" id="risque" oninput="validerChamp('risque'); afficherRisque('risque','risque-label');" min="1" max="5">
-  <p><strong>Risque : <span id="risque-label">Non renseigné</span></strong></p>
-  <p id="risque-erreur" class="message-erreur">Veuillez entrer une valeur entre 1 et 5.</p>
-</div>
-
-<div class="contenu-normal">
-  <label for="remarques">Remarques &amp; particularités :</label>
-  <textarea id="remarques" rows="4" maxlength="2000"></textarea>
-</div>
- <!-- fin mise en page  km rando denivele et duree -->
-
-<!-- PARAGRAPHES SUIVANTS AVEC MISE EN PAGE NORMALE -->
-<!-- <div class="contenu-normal">
-  <p>Voici un paragraphe normal après le formulaire. Il est aligné à gauche et n’est pas affecté par le centrage du formulaire.</p>
-  <p>Un autre paragraphe, également à gauche, avec son espacement naturel.</p>
-</div> -->
-
-<hr>
-<h2>Organisateur</h2>
-<label for="organisateur">Choisissez un organisateur :</label>
-<select id="organisateur" onchange="afficherOrganisateur()" style="font-size:15px;padding:6px;height:34px;line-height:20px;border-radius:6px;">
-  <option value="">-- Sélectionnez --</option>
-  <option value="Pierre Camille ALEZINA 06 03 18 76 16">ALEZINA Pierre Camille  06 03 18 76 16</option>
-  <option value="Dominique BIZARD 06 88 00 15 85">BIZARD Dominique 06 88 00 15 85</option>
-  <option value="André BRIOUDE 06 84 53 70 30">BRIOUDE André 06 84 53 70 30</option>
-  <option value="Nadine BRUN 06 82 48 72 61">BRUN Nadine 6 82 48 72 61</option>
-  <option value="ChristianCIBRARIO 07 81 69 66 16">CIBRARIO Christian 07 81 69 66 16</option>
-  <option value="Roland DUPRÉ 06 52 88 26 57">DUPRÉ Roland 06 52 88 26 57</option>
-  <option value="Marie-Ange DUVERNE 06 29 12 33 65">DUVERNE Marie-Ange 06 29 12 33 65</option>
-  <option value="Sylvie ELISSALDE 06 77 91 03 61">ELISSALDE Sylvie 06 77 91 03 61</option>
-  <option value="Henri FABRE 06 09 89 02 67">FABRE Henri 06 09 89 02 67</option>
-  <option value="Brigitte GRANDPERRIN 06 24 75 90 59">GRANDPERRIN Brigitte 06 24 75 90 59</option>
-  <option value="Bernard GRANGE 06 21 56 59 70"> GRANGE Bernard 06 21 56 59 70</option>
-  <option value="Jean-Luc HERVÉ 07 68 60 38 59">HERVÉ Jean-Luc 07 68 60 38 59</option>
-  <option value="Bernadette JOUVE 06 74 49 96 90">JOUVE Bernadette 06 74 49 96 90</option>
-  <option value="Pierre MARTIN 06 08 23 62 85">MARTIN Pierre 06 08 23 62 85</option>
-  <option value="Annick NOUGUIER 06 87 39 93 86">NOUGUIER Annick 06 87 39 93 86</option>
-  <option value="Michel PALLIER 06 87 92 53 80"> PALLIER Michel 06 87 92 53 80</option>
-  <option value="Marianne POMMER 06 62 17 63 49">POMMER Marianne 06 62 17 63 49</option>
-  <option value="Yves RAOULX 07 66 59 74 00">RAOULX Yves 07 66 59 74 00</option>
-  <option value="Didier RAYNAL 06 80 94 09 42">RAYNAL Didier 06 80 94 09 42</option>
-  <option value="Jean-Louis REYNIER 06 13 09 29 14">REYNIER Jean-Louis 06 13 09 29 14</option>
-  <option value="Catherine TAUSSIG 06 20 42 54 33">TAUSSIG Catherine 06 20 42 54 33</option>
-  <option value="Jean-Claude VALDARCHI 06 25 70 49 05">VALDARCHI Jean-Claude 06 25 70 49 05</option>
-  <option value="TEST 06 01 02 03 04">TEST 06 01 02 03 04</option>
-  <!-- Ajoute la liste complète si besoin -->
-</select>
-<p>Organisateur : <span id="organisateur-label">Non renseigné</span></p>
-
-<hr>
-<!-- Bouton unique -->
-<button id="btn-generer" type="button">1-Générer le résumé</button>
-<br><br>
-<span style="color:red; font-weight:bold;">N'ENVOYEZ PAS DE PDF SVP, UNIQUEMENT LE RÉSUMÉ ET LA COURBE (EN FICHIER JOINT), MERCI</span>
-<br><br>
-<button type="button" onclick="envoyerEmail()">2-Envoyer automatiquement</button>
-<br><br>
-<!-- <span style="color:red; font-weight:bold;">WINDOWS/ANDROID - UTILISEZ LES TOUCHES Ctrl-V POUR COLLER LE RÉSUMÉ DANS UN NOUVEL EMAIL</span>
-<br><br>
-<button type="button" onclick="envoyerEmail()">2(variante)-Coller (Ctrl-V) le résumé dans votre messagerie Windows/Android</button> -->
-
-<div id="resultat" aria-live="polite"></div>
-
-<!-- Script unique et ordonné -->
 <script>
-/* --- Recherche rando (autocomplétion légère) --- */
-const selectBackup = document.getElementById('nom');
-const baseOptions = Array.from(selectBackup.options).map(o => ({value: o.value, text: o.text}));
-const recherche = document.getElementById('rechercheRando');
-const resultsList = document.getElementById('resultsList');
-const champAutre = document.getElementById('autreNomRando');
+/* --------------------- CONFIG / CONST --------------------- */
+const ORS_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImI4YjFjZDdiMTkyZWZmYTc0N2IyNjQ3MWMxNWJkYzAwMWNiMjI1NGZjNmYyMTI5MDgwN2ZmYzgyIiwiaCI6Im11cm11cjY0In0=";
+const ORS_URL = "https://api.openrouteservice.org/v2/directions/foot-hiking/geojson";
+/* -------- ALTITUDE ORS (cache + throttle) -------- */
+let lastAltRequest = 0;
+const ALT_THROTTLE = 30000; // 30 s
+let cachedAlt = null;
+let cachedAltLatLng = null;
+const ALT_MIN_DIST = 25; // mètres
+async function fetchORSAltitude(lat, lng){
+  const res = await fetch(
+    "https://api.openrouteservice.org/elevation/point",
+    {
+      method: "POST",
+      headers: {
+        "Authorization": ORS_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        geometry: { coordinates: [lng, lat] }
+      })
+    }
+  );
+  const data = await res.json();
+  return Math.round(data.geometry.coordinates[2]);
+}
 
-function normalize(s){ return (s||'').normalize ? s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase() : (s||'').toLowerCase(); }
+function isOnline(){
+  return navigator.onLine;
+}
 
-function renderList(items, highlightIndex=-1){
-  resultsList.innerHTML = '';
-  if(items.length===0){
-    const li=document.createElement('li'); li.className='no-results'; li.textContent='Aucun résultat'; resultsList.appendChild(li);
-  } else {
-    items.forEach((it,idx)=>{
-      const li=document.createElement('li'); li.setAttribute('role','option'); li.dataset.value=it.value; li.textContent=it.text;
-      if(idx===highlightIndex) li.setAttribute('aria-selected','true');
-      resultsList.appendChild(li);
+/* --------------------- CARTE / LAYERS --------------------- */
+const map = L.map('map').setView([46.8,2.2],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+let markers = L.layerGroup().addTo(map);
+let routeLayer = L.layerGroup().addTo(map);
+let straightLineLayer = L.layerGroup().addTo(map);
+let editableMarkers = L.layerGroup().addTo(map); // pour édition
+let editPointsLayer = L.layerGroup().addTo(map); // points éditables visibles
+let manualPoints = [];          // points (lng,lat) passés à ORS multi-points
+let manualRouteCoords = [];     // [ [lat,lng,ele], ... ] : trace calculée / importée
+
+let A=null,B=null, markerA=null, markerB=null, straightLine=null;
+
+/* thunderforest / hiking layers (préservés) */
+const thunderforestTrails = L.tileLayer("https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=0ffff5950d8a4019bcede9aaeeecb57f",{ maxZoom:22, attribution:"Maps © Thunderforest, Data © OSM" });
+const hikingTrailsLayer = L.tileLayer("https://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png",{ maxZoom:18, opacity:0.9, attribution:"© Waymarked Trails / OSM" });
+
+/* panel bottom */
+const panel = L.control({ position: 'bottomleft' });
+panel.onAdd = function(){
+  const div = L.DomUtil.create('div','leaflet-control custom-panel');
+div.innerHTML = `
+  <div class="dock-wrapper">
+  <div class="dock-handle" aria-label="Ouvrir le menu"></div>
+  <div class="icon-grid" role="toolbar" aria-label="menu actions">
+
+
+    <button class="icon-btn" onclick="searchLocation()" title="Rechercher">🔍</button>
+    <button class="icon-btn" onclick="setPointA()" title="Point A">🅰️</button>
+    <button class="icon-btn" onclick="setPointB()" title="Point B">🅱️</button>
+    <button class="icon-btn" onclick="drawStraightLine()" title="Ligne A→B">📏</button>
+    <button class="icon-btn secondary" onclick="removeLastPoint()" title="Annuler dernier point">↩️</button>
+    <button class="icon-btn secondary" onclick="clearAll()" title="Effacer tout">🗑️</button>
+    <button class="icon-btn" onclick="exportGPX()" title="Exporter GPX">💾</button>
+    <button class="icon-btn" onclick="toggleInfoPanel()" title="Infos">📊</button>
+    <button class="icon-btn" onclick="centerGPS()" title="Recentrer GPS">📍</button>
+    <button class="icon-btn" id="recBtn" onclick="toggleAutoRecording()" title="Enregistrement GPS">▶️</button>
+  </div>
+  </div>
+`;
+
+  L.DomEvent.disableClickPropagation(div);
+  L.DomEvent.disableScrollPropagation(div);
+
+  return div;
+};
+panel.addTo(map);
+
+/* layers control */
+const baseLayers = {
+  "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+  "Thunderforest Outdoors": thunderforestTrails
+};
+const overlays = {
+  "Sentiers hiking (Waymarked Trails)": hikingTrailsLayer,
+  "Points manuels": markers,
+  "Ligne droite A→B": straightLineLayer,
+  "Trace ORS": routeLayer
+};
+L.control.layers(baseLayers, overlays, { collapsed:true, position:"topright" }).addTo(map);
+
+/* --------------------- GPS (pointeur) --------------------- */
+let gpsMarker = null;
+let gpsClickAttached = false;
+
+if(navigator.geolocation){
+  navigator.geolocation.watchPosition(pos=>{
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const alt = pos.coords.altitude;
+
+    const latlng = [lat, lng];
+
+    const redIcon = L.icon({
+      iconUrl:"https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg",
+      iconSize:[14,14],
+      iconAnchor:[7,7]
     });
-  }
-  const aut = baseOptions.find(o=>o.value==='autre');
-  if(aut){ const li=document.createElement('li'); li.setAttribute('role','option'); li.dataset.value=aut.value; li.textContent=aut.text; resultsList.appendChild(li); }
-  resultsList.style.display='block';
-  recherche.setAttribute('aria-expanded','true');
-}
-function hideList(){ resultsList.style.display='none'; recherche.setAttribute('aria-expanded','false'); clearHighlight(); }
-function resetAll(){ hideList(); champAutre.style.display='none'; champAutre.value=''; }
 
-recherche.addEventListener('input', ()=>{
-  const q=recherche.value.trim();
-  if(q.length===0){ resetAll(); return; }
-  const qn=normalize(q);
-  const found = baseOptions.filter(o=>o.value && o.value!=='autre').filter(o=>normalize(o.text).includes(qn));
-  renderList(found);
-});
-
-function chooseItem(value, text){
-  if(value==='autre'){ champAutre.style.display='block'; champAutre.value=''; champAutre.focus(); recherche.value=''; }
-  else { recherche.value = text; }
-  hideList();
-  try{ selectBackup.value = value; }catch(e){}
-}
-
-resultsList.addEventListener('click',(ev)=>{ const li=ev.target.closest('li[role="option"]'); if(!li) return; chooseItem(li.dataset.value, li.textContent); });
-resultsList.addEventListener('touchstart',(ev)=>{ const li=ev.target.closest('li[role="option"]'); if(!li) return; ev.preventDefault(); chooseItem(li.dataset.value, li.textContent); },{passive:false});
-
-let highlight = -1;
-function clearHighlight(){ highlight=-1; Array.from(resultsList.querySelectorAll('li[role="option"]')).forEach(li=>li.removeAttribute('aria-selected')); }
-function updateHighlight(delta){ const items=Array.from(resultsList.querySelectorAll('li[role="option"]')); if(items.length===0) return; highlight = Math.max(0,Math.min(items.length-1, highlight+delta)); items.forEach((li,i)=>{ if(i===highlight){ li.setAttribute('aria-selected','true'); li.scrollIntoView({block:'nearest'}); } else li.removeAttribute('aria-selected'); }); }
-recherche.addEventListener('keydown',(ev)=>{ if(resultsList.style.display==='none') return; if(ev.key==='ArrowDown'){ ev.preventDefault(); updateHighlight(+1); } else if(ev.key==='ArrowUp'){ ev.preventDefault(); updateHighlight(-1); } else if(ev.key==='Enter'){ ev.preventDefault(); const items=Array.from(resultsList.querySelectorAll('li[role="option"]')); if(items[highlight]) chooseItem(items[highlight].dataset.value, items[highlight].textContent); } else if(ev.key==='Escape'){ hideList(); } });
-document.addEventListener('click',(ev)=>{ if(!ev.target.closest('.dropdown-wrap') && ev.target !== champAutre) hideList(); });
-
-/* --- divers utilitaires d'affichage --- */
-function afficherJour(){
-  const date = document.getElementById("date").value;
-  if(date){ const jour = new Date(date).toLocaleDateString('fr-FR',{weekday:'long'}); document.getElementById("jour-semaine").textContent = jour.charAt(0).toUpperCase()+jour.slice(1); }
-}
-function calculerHeureDepart(){
-  const h=document.getElementById("heure-rv").value;
-  if(h){ const [hours,minutes]=h.split(':').map(Number); const d=new Date(); d.setHours(hours, minutes+15); document.getElementById("heure-depart").textContent = d.toTimeString().substring(0,5); }
-}
-function calculerCouts(){
-  const km=parseFloat(document.getElementById("trajet-km").value) || 0;
-  const autoroute=parseFloat(document.getElementById("cout-autoroute").value) || 0;
-  const totalTrajet = km * 0.3;
-  const coutTotal = totalTrajet + autoroute;
-  document.getElementById("total-trajet").textContent = totalTrajet.toFixed(2);
-  document.getElementById("cout-total").textContent = coutTotal.toFixed(2);
-  document.getElementById("covoit4").textContent = (coutTotal/4).toFixed(2);
-  document.getElementById("covoit5").textContent = (coutTotal/5).toFixed(2);
-}
-function afficherIBP(){
-  const ibp = parseInt(document.getElementById("ibp").value) || 0;
-  const effort = document.getElementById("effort");
-  if(ibp < 25) effort.textContent = "🟢 1 (Facile)";
-  else if(ibp <= 50) effort.textContent = "🔵 2 (Assez Facile)";
-  else if(ibp <= 75) effort.textContent = "🟠 3 (Peu Difficile)";
-  else if(ibp <= 100) effort.textContent = "🔴 4 (Assez Difficile)";
-  else effort.textContent = "⚫️ 5 ( 😅 Difficile)";
-}
-function afficherDifficulte(id,label){ const niveaux=["Facile","Assez Facile","Peu Difficile","Assez Difficile","Difficile"]; const v=document.getElementById(id).value; document.getElementById(label).textContent = niveaux[v-1] || "Non renseigné"; }
-function afficherRisque(id,label){ const niveaux=["Faible","Assez Faible","Peu Élevé","Assez Élevé","Élevé"]; const v=document.getElementById(id).value; document.getElementById(label).textContent = niveaux[v-1] || "Non renseigné"; }
-function afficherOrganisateur(){ const o=document.getElementById("organisateur").value; document.getElementById("organisateur-label").textContent = o || "Non renseigné"; }
-function gererAutreLieu(){ const s=document.getElementById('lieu'); const a=document.getElementById('autreLieu'); if(s.value==='autre'){ a.style.display='block'; a.focus(); } else { a.style.display='none'; a.value=''; } }
-
-/* --- validation & UI helpers --- */
-function ajusterLargeur(input){ const valeur = input.value ?? ""; const len = String(valeur).length; const minChars = 6; const maxChars = 18; const extra = 1; const target = Math.min(Math.max(len, minChars), maxChars) + extra; input.style.width = target + "ch"; }
-function verifierInfos(){ const kmInput=document.getElementById('km'); const deniveleInput=document.getElementById('denivele'); const km=parseFloat(kmInput.value)||0; const denivele=parseFloat(deniveleInput.value)||0;
-  if(km>0 && km<13) afficherBulle("Pas mal, mais vous pouvez mieux faire 😉", kmInput);
-  if(km>=13 && km<20) afficherBulle("c'est bien, tout le monde va adorer 😉", kmInput);
-  if(km>=20) afficherBulle("Trop fort, êtes-vous sûr de terminer le parcours 😂?", kmInput);
-  if(denivele>0 && denivele<500) afficherBulle("Encore un effort 🤪, allez !", deniveleInput);
-  if(denivele>=500) afficherBulle("Vous allez atteindre des sommets 😀, bravo !", deniveleInput);
-}
-function afficherBulle(texte,cible){ const bulle=document.createElement('div'); bulle.textContent=texte; bulle.style.position='absolute'; bulle.style.background='#1a73e8'; bulle.style.color='white'; bulle.style.padding='6px 10px'; bulle.style.borderRadius='8px'; bulle.style.fontSize='0.9rem'; bulle.style.whiteSpace='nowrap'; bulle.style.boxShadow='0 2px 6px rgba(0,0,0,0.3)'; bulle.style.transition='opacity 0.5s'; bulle.style.opacity='1';
-  const rect=cible.getBoundingClientRect(); const scrollY = window.scrollY || document.documentElement.scrollTop; bulle.style.left = (rect.left) + 'px'; bulle.style.top = (rect.top + scrollY - 35) + 'px'; bulle.style.zIndex=1000; document.body.appendChild(bulle);
-  setTimeout(()=>{ bulle.style.opacity='0'; setTimeout(()=>bulle.remove(),500); },4000);
-}
-
-function validerChamp(id){ const champ=document.getElementById(id); const valeur=parseInt(champ.value,10); const messageErreurId=id+'-erreur'; let messageErreur=document.getElementById(messageErreurId); if(!messageErreur){ messageErreur=document.createElement('p'); messageErreur.id=messageErreurId; messageErreur.className='message-erreur'; messageErreur.style.color='white'; messageErreur.style.backgroundColor='red'; messageErreur.style.padding='5px'; messageErreur.style.borderRadius='3px'; messageErreur.style.fontSize='0.9em'; messageErreur.style.marginTop='5px'; champ.parentNode.insertBefore(messageErreur, champ.nextSibling); } if(isNaN(valeur) || valeur<1 || valeur>5){ messageErreur.textContent='Veuillez entrer une valeur entre 1 et 5.'; messageErreur.style.display='block'; } else messageErreur.style.display='none'; }
-
-document.addEventListener('DOMContentLoaded', function(){
-  // liaison bouton générer
-  const btn = document.getElementById('btn-generer');
-  if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); genererTexte(); }); }
-  // liaison validation nombre
-  ["trajet-km","cout-autoroute","km","denivele","ibp"].forEach(id=>{ const champ=document.getElementById(id); if(champ){ champ.addEventListener('input', ()=> validerNumerique(id)); }});
-  // adapt width initial
-  document.querySelectorAll("#km,#denivele").forEach(el=>ajusterLargeur(el));
-});
-
-/* --- utilitaires pour le résumé --- */
-function getNomRando(){ const select = document.getElementById('nom'); const autre = document.getElementById('autreNomRando'); return (select && select.value==='autre') ? (autre ? autre.value.trim() : '') : (select ? select.value : (document.getElementById('rechercheRando').value || '')); }
-function getValeurOuRouge(elementId, isText=false){ const el=document.getElementById(elementId); const valeur = el ? (isText ? el.textContent : el.value) : ''; return (valeur && String(valeur).trim()) ? valeur : '<span style="color:red">Non renseigné</span>'; }
-function getLibelleTechnicite(valeur){ const niveaux=["Facile","Assez Facile","Peu Difficile","Assez Difficile","😅 Difficile"]; return niveaux[valorToIndex(valeur)] || "Non renseigné"; }
-function getLibelleRisque(valeur){ const niveaux=["Faible","Assez Faible","Peu Élevé","Assez Élevé","😅 Élevé"]; return niveaux[valorToIndex(valeur)] || "Non renseigné"; }
-function valorToIndex(v){ return (typeof v==='number' && v>=1 && v<=5) ? v-1 : -1; }
-
-/* --- fonction principale : génère le texte -> sécurisée --- */
-function genererTexte(){
-  const nomRando = getNomRando() || '<span style="color:red">Non renseigné</span>';
-  const dateVal = document.getElementById("date").value;
-  const dateFormatted = dateVal ? new Date(dateVal).toLocaleDateString("fr-FR") : '<span style="color:red">Non renseigné</span>';
-  const jour = document.getElementById("jour-semaine").textContent || '';
-
-  const selectLieu = document.getElementById("lieu");
-  let lieuRV = '<span style="color:red">Non renseigné</span>';
-  if(selectLieu){
-    if(selectLieu.value === 'autre'){ const autreLieu = document.getElementById('autreLieu'); if(autreLieu && autreLieu.value.trim()) lieuRV = autreLieu.value.trim(); }
-    else if(selectLieu.value) lieuRV = selectLieu.value;
-  }
-
-  const heureRV = getValeurOuRouge("heure-rv");
-  const heureDepart = document.getElementById("heure-depart").textContent || '<span style="color:red">Non renseigné</span>';
-  const description = getValeurOuRouge("description");
-  const trajetkm = getValeurOuRouge("trajet-km");
-  const parkingDepart = getValeurOuRouge("parking-depart");
-  const totalTrajet = document.getElementById("total-trajet")?.textContent || "0";
-  const coutAutoroute = document.getElementById("cout-autoroute")?.value || "0";
-  const coutTotal = document.getElementById("cout-total")?.textContent || "0";
-  const covoit4 = document.getElementById("covoit4")?.textContent || "0";
-  const covoit5 = document.getElementById("covoit5")?.textContent || "0";
-  const km = document.getElementById("km")?.value || "0";
-  const denivele = document.getElementById("denivele")?.value || "0";
-  const duree = getValeurOuRouge("duree");
-  const ibp = document.getElementById("ibp")?.value || "0";
-  const effort = document.getElementById("effort")?.textContent || '<span style="color:red">Non renseigné</span>';
-
-  const techniciteValeur = parseInt(document.getElementById("technicite")?.value) || 0;
-  const technicite = getLibelleTechnicite(techniciteValeur);
-  const risqueValeur = parseInt(document.getElementById("risque")?.value) || 0;
-  const risque = getLibelleRisque(risqueValeur);
-
-  const remarques = getValeurOuRouge("remarques");
-  const organisateur = document.getElementById("organisateur-label")?.textContent || '<span style="color:red">Non renseigné</span>';
-  const blocK = getValeurOuRouge("bloc");
-
-  const resume = `
-Feuille de route : ${jour} ${dateFormatted} — ${nomRando}
-Nom de la randonnée : ${nomRando}
-📆 Date de la randonnée : ${dateFormatted}
-
-🅿️ Parking Covoiturage : ${lieuRV}
-🕞 Heure de rendez-vous : ${heureRV}
-🔔 Heure de Départ : ${heureDepart}
-
-Trajet suggéré: ${description}
-
-Kilométrage voiture A/R : ${trajetkm} km
-🏁 Parking de Départ de la randonnée : ${parkingDepart}
-${lastMapLink ? `📍 Lien Google Maps : ${lastMapLink}` : ""}
-${window.lastLat ? `<br>📌 Coordonnées GPS : ${window.lastLat}, ${window.lastLon}` : ""}<br>
-
-
-Coût du Trajet : ${totalTrajet} €
-Coût de l'Autoroute : ${coutAutoroute} €
-Coût Trajet Total : ${coutTotal} €
-✅ Covoiturage (par 4) : ${covoit4} €
-✅ Covoiturage (par 5) : ${covoit5} €
-
-Distance de la Randonnée : ≃${km} km
-😋 Dénivelé positif : ≃${denivele} m
-⏱️ Durée totale: ≃${duree}
-
-IBP : ${ibp} (HKG)
-E: ${effort}, T: ${techniciteValeur} (${technicite}), R : ${risqueValeur} (${risque})
-
-📌 Remarques et particularités : ${remarques}
-
-🚶‍♂️🚶🏻‍♀️Animateur-trice : ${organisateur}
-
-Les paramètres de la randonnée sont donnés à titre indicatif uniquement. 
-Ils peuvent varier en fonction des applications GPS.
-
-Inscription auprès de l'animateur-trice la veille avant 19h par SMS.
-L'animateur-trice se réserve le droit de modifier le circuit.
-
-ÉQUIPEMENT : Les chaussures de randonnée montantes et les bâtons de marche sont obligatoires. 
-Prévoir des vêtements de protection (vent, pluie, froid), un sac à dos avec pique-nique et de l'eau en quantité suffisante, ainsi que sa propre pharmacie.
-`.trim();
-
-
-  const resultatDiv = document.getElementById("resultat");
-  if(!resultatDiv){ alert("Erreur : conteneur du résumé introuvable."); return; }
-  // resultatDiv.innerHTML = resume;
-  resultatDiv.innerHTML = resume.replace(/\n/g, "<br>");
-
-  // accessible : focus sur résultat
-  resultatDiv.focus?.();
-}
-
-/* --- copies / envoi --- */
-function validerNumerique(id){
-  const champ=document.getElementById(id);
-  if(!champ) return;
-  const valeur = champ.value.trim();
-  const messageErreurId = id + "-erreur"; let messageErreur = document.getElementById(messageErreurId);
-  if(!messageErreur){ messageErreur = document.createElement("p"); messageErreur.id = messageErreurId; messageErreur.className = "message-erreur"; messageErreur.style.color="white"; messageErreur.style.backgroundColor="red"; messageErreur.style.padding="5px"; messageErreur.style.borderRadius="3px"; messageErreur.style.fontSize="0.9em"; messageErreur.style.marginTop="5px"; champ.parentNode.insertBefore(messageErreur, champ.nextSibling); }
-  if(valeur==="" || isNaN(valeur)){ messageErreur.textContent = "Valeurs numériques uniquement"; messageErreur.style.display = "block"; } else { messageErreur.style.display = "none"; }
-}
-
-function envoyerEmail() {
-  const date = document.getElementById("date").value || "";
-  const dateFormatted = date ? new Date(date).toLocaleDateString("fr-FR") : "";
-  const jour = document.getElementById("jour-semaine").textContent || "";
-  const lieu = getNomRando() || "Non renseigné";
-  // const resume = document.getElementById("resultat").textContent || "";
-  const resume = document.getElementById("resultat").innerText || "";
-
-  const messageIntro =
-    "Bonjour La Marmotte,%0D%0A%0D%0AVoici ma feuille de route.%0D%0A%0D%0ACordialement.%0D%0A%0D%0A";
-
-  const sujet = encodeURIComponent(`${jour} ${dateFormatted} ${lieu}`);
-  const body = encodeURIComponent(resume);
-  const mailtoLink = `mailto:contact@lamarmottechateaurenard.com,lamarmotterando@gmail.com?subject=${sujet}&body=${messageIntro}${body}`;
-
-  // Création d’un lien invisible pour forcer l’exécution sur mobile
-  const a = document.createElement("a");
-  a.href = mailtoLink;
-  a.style.display = "none";
-  document.body.appendChild(a);
-
-  // Clic programmatique immédiatement déclenché après interaction utilisateur
-  a.click();
-  document.body.removeChild(a);
-}
-
-</script>
-
-<script>
-// === Leaflet & Nominatim integration (replaces previous updateParkingMap / mettreAJourDistance) ===
-
-// --- variables globales ---
-  // --- Mise à jour automatique du point de départ (parking covoiturage) ---
-let lastMapLink = "";
-window.lastLat = null;
-window.lastLon = null;
-window.leafletMap = null;
-window.leafletMarker = null;
-window.routeLayer = null;
-
-// HOME_LAT / HOME_LON can be updated dynamically from the parking covoiturage select
-let HOME_LAT = 43.88808;
-let HOME_LON = 4.84882;
-
-// --- Mise à jour automatique du point de départ (parking covoiturage) ---
-async function setHomeFromParking() {
-    const select = document.getElementById("lieu");
-    const autre = document.getElementById("autreLieu");
-
-    if (!select) return;
-
-    let texte = "";
-    if (select.value === "autre") {
-        if (!autre || !autre.value.trim()) return;
-        texte = autre.value.trim();
+    if(!gpsMarker){
+      gpsMarker = L.marker(latlng,{icon:redIcon}).addTo(map);
+      map.setView(latlng,12);
     } else {
-        texte = select.value;
+      gpsMarker.setLatLng(latlng);
     }
-    if (!texte) return;
 
-    try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(texte)}`;
-        const r = await fetch(url, { headers: { "Accept-Language": "fr" } });
-        const j = await r.json();
-        if (!j || !j.length) {
-            console.warn("Parking covoiturage introuvable :", texte);
-            return;
-        }
-        HOME_LAT = parseFloat(j[0].lat);
-        HOME_LON = parseFloat(j[0].lon);
-        console.log("NOUVEAU point de départ COVOIT =", HOME_LAT, HOME_LON);
-        if (window.lastLat && window.lastLon) {
-            updatePosition(window.lastLat, window.lastLon);
-        }
-    } catch (e) {
-        console.error("Erreur en géocodant le parking covoiturage :", e);
+    // --- stocker altitude ---
+    gpsMarker._altitude = alt;
+
+    // --- handler click (une seule fois) ---
+    if(!gpsClickAttached){
+      gpsClickAttached = true;
+
+      gpsMarker.on('click', async () => {
+
+  const p = gpsMarker.getLatLng();
+
+  const gpsAlt =
+    (gpsMarker._altitude !== null && gpsMarker._altitude !== undefined)
+    ? gpsMarker._altitude.toFixed(1)
+    : null;
+
+  let terrainAlt = cachedAlt;
+
+  // --- récupération terrain si nécessaire ---
+  if (!terrainAlt && isOnline()) {
+
+    const now = Date.now();
+    let needFetch = false;
+
+    if (!cachedAltLatLng) {
+      needFetch = true;
+    } else {
+      const d = L.latLng(cachedAltLatLng).distanceTo(p);
+      if (d > ALT_MIN_DIST) needFetch = true;
     }
+
+    if (needFetch && now - lastAltRequest > ALT_THROTTLE) {
+      try {
+        terrainAlt = await fetchORSAltitude(p.lat, p.lng);
+        cachedAlt = terrainAlt;
+        cachedAltLatLng = p;
+        lastAltRequest = now;
+      } catch(e){
+        console.warn("ORS altitude error", e);
+      }
+    }
+  }
+
+  const gpsLine = gpsAlt
+    ? `📡 GPS : ${gpsAlt} m`
+    : `📡 GPS : —`;
+
+  const terrainLine = terrainAlt
+    ? `⛰️ Terrain : ${terrainAlt} m`
+    : `⛰️ Terrain : —`;
+
+  gpsMarker.bindPopup(`
+    <b>📍 Position</b><br>
+    Lat : ${p.lat.toFixed(6)}<br>
+    Lon : ${p.lng.toFixed(6)}<br><br>
+    ${gpsLine}<br>
+    ${terrainLine}
+  `).openPopup();
+});
+
+
+    }
+
+  }, err=>console.warn("GPS:",err), { enableHighAccuracy:true });
 }
 
-function calculerCouts(){
-  const km = parseFloat(document.getElementById('trajet-km').value) || 0;
-  const autoroute = parseFloat(document.getElementById('cout-autoroute').value) || 0;
-  const totalTrajet = km * 0.3;
-  const coutTotal = totalTrajet + autoroute;
-  const elTotal = document.getElementById('total-trajet');
-  const elCout = document.getElementById('cout-total');
-  const el4 = document.getElementById('covoit4');
-  const el5 = document.getElementById('covoit5');
-  if(elTotal) elTotal.textContent = totalTrajet.toFixed(2);
-  if(elCout) elCout.textContent = coutTotal.toFixed(2);
-if(el4) el4.textContent = (Math.round((coutTotal/4) * 10) / 10).toFixed(1);
-if(el5) el5.textContent = (Math.round((coutTotal/5) * 10) / 10).toFixed(1);
+
+/* --------------------- UTILS ELEVATION & DISTANCE --------------------- */
+function smoothArray(data, alpha=0.22){
+  if(!data.length) return data;
+  const out=new Array(data.length); out[0]=data[0];
+  for(let i=1;i<data.length;i++) out[i]=out[i-1]*(1-alpha)+data[i]*alpha;
+  out[out.length-1]=data[data.length-1];
+  return out;
+}
+function computeElevationGain(elev){
+  let up=0,down=0;
+  for(let i=1;i<elev.length;i++){ const d=elev[i]-elev[i-1]; if(d>0) up+=d; else down+=Math.abs(d); }
+  return {positive:Math.round(up), negative:Math.round(down)};
+}
+function computeMinMax(elev){ if(!elev.length) return {min:0,max:0}; return {min:Math.round(Math.min(...elev)), max:Math.round(Math.max(...elev))}; }
+function computeTotalDistanceLatLngs(latlngs){ if(!latlngs.length) return 0; let tot=0; for(let i=1;i<latlngs.length;i++) tot+=L.latLng(latlngs[i-1][0],latlngs[i-1][1]).distanceTo(L.latLng(latlngs[i][0],latlngs[i][1])); return tot; }
+function computeCumulativeDistances(latlngs){ let arr=[0], tot=0; for(let i=1;i<latlngs.length;i++){ tot+=L.latLng(latlngs[i-1][0],latlngs[i-1][1]).distanceTo(L.latLng(latlngs[i][0],latlngs[i][1])); arr.push((tot/1000).toFixed(3)); } return arr; }
+
+/* --------------------- ELEVATION CHART --------------------- */
+let elevationChart = null;
+function drawElevation(elevations, latlngs=[]){
+  const smooth = elevations && elevations.length ? smoothArray(elevations.map(e=>Math.round(e||0)), 0.22) : [];
+  const gain = computeElevationGain(smooth);
+  const mm = computeMinMax(smooth);
+  const cumulative = latlngs.length ? computeCumulativeDistances(latlngs) : smooth.map((_,i)=>i);
+  const ctx = document.getElementById('elevationChart').getContext('2d');
+  if(elevationChart) elevationChart.destroy();
+  elevationChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels:cumulative, datasets:[{ label:'Altitude (m)', data:smooth, borderWidth:2, fill:false, tension:0.25, pointRadius:0 }]},
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{ title:{display:true,text:"Distance (km)"}}, y:{ title:{display:true,text:"Altitude (m)"} } } }
+  });
+  const totalDistance = latlngs.length ? (computeTotalDistanceLatLngs(latlngs)/1000).toFixed(2) : "0.00";
+  document.getElementById('distance').innerHTML = `<b>Distance totale :</b> ${totalDistance} km  -  ⬆️ <b>D+ :</b> ${gain.positive} m &nbsp; ⬇️ <b>D- :</b> ${gain.negative} m - 🔻 <b>Min :</b> ${mm.min} m | 🔺 <b>Max :</b> ${mm.max} m`;
 }
 
-async function getDrivingRoute(lat1, lon1, lat2, lon2){
-  const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
+/* --------------------- ORS: rebuild route from manualPoints (multipoints) --------------------- */
+let orsRequestInProgress = false;   // ← MODIF A À AJOUTER ICI
+async function rebuildManualRouteFromPoints(){
+
+  // ===== MODIF B : VERROU ORS =====
+  if (orsRequestInProgress) return;
+  orsRequestInProgress = true;
+  // ===============================
+
+  routeLayer.clearLayers();
+  editableMarkers.clearLayers();
+  editPointsLayer.clearLayers();
+  manualRouteCoords = [];
+
+  if(manualPoints.length < 2){
+    orsRequestInProgress = false;   // ← IMPORTANT
+    drawElevation([],[]);
+    saveRouteLocal();
+    return;
+  }
+
   try{
-    const r = await fetch(url);
-    if(!r.ok) throw new Error('OSRM error ' + r.status);
-    const j = await r.json();
-    if(j.routes && j.routes.length > 0){
-      return {
-        distance_km: j.routes[0].distance / 1000,
-        coords: j.routes[0].geometry.coordinates.map(c => [c[1], c[0]])
-      };
-    }
-  }catch(e){ console.warn('getDrivingRoute error', e); }
-  return null;
+    const res = await fetch(ORS_URL, {
+      method:"POST",
+      headers: { "Authorization": ORS_KEY, "Content-Type":"application/json" },
+      body: JSON.stringify({ coordinates: manualPoints, elevation:true, instructions:false, preference:"recommended" })
+    });
+    if(!res.ok) throw new Error("ORS HTTP " + res.status);
+    const data = await res.json();
+    if(!data.features || !data.features.length) throw new Error("ORS: pas de géométrie");
+
+    const coords = data.features[0].geometry.coordinates;
+    coords.forEach(c => manualRouteCoords.push([c[1], c[0], c[2] || 0]));
+    const latlngs = manualRouteCoords.map(c=>[c[0],c[1]]);
+    L.polyline(latlngs, { color:"green", weight:4, smoothFactor:1.2 }).addTo(routeLayer);
+
+    // création de markers éditables
+    createEditableMarkersFromCoords(latlngs);
+
+    drawElevation(manualRouteCoords.map(c=>c[2]||0), latlngs);
+    refreshMarkers(); // met à jour les points manuels si présents
+    saveRouteLocal();
+  } catch(err){
+  console.error("Erreur ORS multipoints:", err);
+} finally {
+  orsRequestInProgress = false;   // ← LIBÈRE LE VERROU
 }
 
-function drawRoute(coords){
-  if(!window.leafletMap) return;
-
-  if(window.routeLayer){
-    try{
-      window.leafletMap.removeLayer(window.routeLayer);
-    }catch(e){}
-    window.routeLayer = null;
-  }
-
-  if(coords && coords.length){
-    window.routeLayer = L.polyline(coords, {
-      color:'#0074D9',
-      weight:4,
-      opacity:0.9
-    }).addTo(window.leafletMap);
-
-    // ✅ Le bouton apparaît quand une route existe
-    setRecenterButtonVisible(true);
-
-  } else {
-    setRecenterButtonVisible(false);
-  }
 }
 
+/* --------------------- MAP CLICK POUR AJOUTER POINTS --------------------- */
+map.on('click', e => {
+  manualPoints.push([e.latlng.lng, e.latlng.lat]);
+  rebuildManualRouteFromPoints();
+});
 
-function updatePosition(lat, lon){
-  window.lastLat = lat;
-  window.lastLon = lon;
-  lastMapLink = `https://www.google.com/maps?q=${lat},${lon}`;
-  const captionEl = document.getElementById('parkingMapCaption');
-  if(captionEl) captionEl.innerHTML = `<strong>GPS :</strong> ${lat.toFixed(6)}, ${lon.toFixed(6)} — <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" rel="noopener">Ouvrir dans Google Maps</a>`;
+/* --------------------- A/B / Ligne droite --------------------- */
+function setPointA(){
+  map.once('click', e => {
+    A = e.latlng;
+    if(markerA) straightLineLayer.removeLayer(markerA);
+    markerA = L.marker(A).addTo(straightLineLayer).bindPopup("A").openPopup();
+  });
+}
+function setPointB(){
+  map.once('click', e => {
+    B = e.latlng;
+    if(markerB) straightLineLayer.removeLayer(markerB);
+    markerB = L.marker(B).addTo(straightLineLayer).bindPopup("B").openPopup();
+  });
+}
+function drawStraightLine(){
+  if(!A || !B) return alert("Définissez A et B avant de tracer la ligne droite.");
+  if(straightLine) straightLineLayer.removeLayer(straightLine);
+  straightLine = L.polyline([[A.lat,A.lng],[B.lat,B.lng]], { color:"red", weight:3, dashArray:"6,6" }).addTo(straightLineLayer);
+  const dist = A.distanceTo(B)/1000;
+  const prev = document.getElementById('distance').innerHTML || "";
+  document.getElementById('distance').innerHTML = `📏 Ligne droite A→B : <b>${dist.toFixed(2)} km</b><br>` + prev;
+  map.fitBounds(L.latLngBounds([A,B]).pad(0.2));
+}
 
-  getDrivingRoute(HOME_LAT, HOME_LON, lat, lon).then(res =>{
-    if(res){
-      const kmAR = (res.distance_km * 2).toFixed(1);
-      const el = document.getElementById("trajet-km");
-      if(el) el.value = kmAR;
-      drawRoute(res.coords);
+/* --------------------- ORS A->B --------------------- */
+async function computeRoute(){
+  if(!A || !B) return alert("Définissez A et B pour calculer le tracé réel ORS entre eux.");
+  try{
+    const res = await fetch(ORS_URL, {
+      method:"POST",
+      headers: { "Authorization": ORS_KEY, "Content-Type":"application/json" },
+      body: JSON.stringify({ coordinates: [[A.lng,A.lat],[B.lng,B.lat]], elevation:true, instructions:false })
+    });
+    if(!res.ok) throw new Error("ORS HTTP " + res.status);
+    const data = await res.json();
+    const coords = data.features[0].geometry.coordinates.map(c=>[c[1],c[0]]);
+    const elev = data.features[0].geometry.coordinates.map(c=>c[2]||0);
+    routeLayer.clearLayers();
+    L.polyline(coords, { color:"blue", weight:4 }).addTo(routeLayer);
+    // save route
+    manualRouteCoords = coords.map((c,i)=>[c[0],c[1],elev[i]||0]);
+    createEditableMarkersFromCoords(coords);
+    drawElevation(elev, coords);
+    saveRouteLocal();
+    map.fitBounds(coords);
+  } catch(err){ console.error("Erreur computeRoute:",err); alert("Erreur ORS computeRoute."); }
+}
+
+/* --------------------- IMPORT GPX (robuste, mobile fallback) --------------------- */
+
+/**
+ * readFileText(file) -> Promise<string>
+ * - utilise file.text() si disponible
+ * - sinon fallback FileReader
+ */
+function readFileText(file){
+  return new Promise((resolve, reject) => {
+    if(file.text){
+      file.text().then(resolve).catch(() => {
+        // fallback
+        const fr=new FileReader();
+        fr.onload = () => resolve(fr.result);
+        fr.onerror = e => reject(e);
+        fr.readAsText(file);
+      });
     } else {
-      // fallback: haversine
-      const R = 6371;
-      const dLat = (lat - HOME_LAT) * Math.PI/180;
-      const dLon = (lon - HOME_LON) * Math.PI/180;
-      const a = Math.sin(dLat/2)**2 + Math.cos(HOME_LAT*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
-      const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      const el = document.getElementById("trajet-km");
-      if(el) el.value = (d*2).toFixed(1);
-      try{ if(window.routeLayer){ window.leafletMap.removeLayer(window.routeLayer); window.routeLayer = null; } }catch(e){}
+      const fr=new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = e => reject(e);
+      fr.readAsText(file);
     }
-    calculerCouts();
   });
 }
 
-function updateParkingMap(){
-  const query = document.getElementById('parking-depart').value.trim();
-  if(!query){ alert("Saisir un parking."); return; }
-
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
-    .then(r=>r.json())
-    .then(results=>{
-      if(!results || !results.length){ alert("Adresse introuvable."); return; }
-      const lat = parseFloat(results[0].lat);
-      const lon = parseFloat(results[0].lon);
-
-      const mapDiv = document.getElementById('parkingMap');
-      if(mapDiv){ mapDiv.style.display = 'block'; mapDiv.style.width='100%'; mapDiv.style.height='400px'; }
-
-      if(!window.leafletMap){
-        window.leafletMap = L.map('parkingMap').setView([lat, lon], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'&copy; OpenStreetMap contributors'}).addTo(window.leafletMap);
-
-        window.leafletMap.on('click', e =>{
-          const lt = e.latlng.lat, ln = e.latlng.lng;
-          if(!window.leafletMarker){
-            window.leafletMarker = L.marker([lt, ln], {draggable:true}).addTo(window.leafletMap);
-            window.leafletMarker.on('dragend', e =>{ const p = e.target.getLatLng(); updatePosition(p.lat, p.lng); });
-          } else {
-            window.leafletMarker.setLatLng([lt, ln]);
-          }
-          updatePosition(lt, ln);
-        });
-      } else {
-        window.leafletMap.setView([lat, lon], 13);
-      }
-
-      if(!window.leafletMarker){
-        window.leafletMarker = L.marker([lat, lon], {draggable:true}).addTo(window.leafletMap);
-        window.leafletMarker.on('dragend', e =>{ const p = e.target.getLatLng(); updatePosition(p.lat, p.lng); });
-      } else {
-        window.leafletMarker.setLatLng([lat, lon]);
-      }
-
-      updatePosition(lat, lon);
-    })
-    .catch(err => { console.error(err); alert('Erreur Nominatim'); });
+/* safe conversion GPX -> GeoJSON using available lib */
+function convertGpxToGeoJSONFromXml(xmlDoc){
+  // try typical global names (togeojson or toGeoJSON)
+  if(window.toGeoJSON && typeof window.toGeoJSON.gpx === "function"){
+    return window.toGeoJSON.gpx(xmlDoc);
+  }
+  if(window.togeojson && typeof window.togeojson.gpx === "function"){
+    return window.togeojson.gpx(xmlDoc);
+  }
+  if(window.TO_GPX && typeof window.TO_GPX === "function"){
+    // improbable, fallback placeholder
+    return window.TO_GPX(xmlDoc);
+  }
+  throw new Error("Lib toGeoJSON introuvable");
 }
-// ✅ Recentrage manuel du trajet (bouton)
-function recenterRoute(){
-  if(window.leafletMap && window.routeLayer){
-    try{
-      window.leafletMap.fitBounds(window.routeLayer.getBounds(), {padding:[40,40]});
-    }catch(e){
-      console.error("Erreur recentrage :", e);
-      alert("Impossible de recentrer le trajet.");
+
+/******************************************************************
+ *   IMPORT GPX — VERSION VALIDÉE ET COMPLÈTE
+ ******************************************************************/
+async function handleFileImport(file){
+  if(!file) return;
+
+  let geojson = null;
+  const statusEl = document.getElementById('importStatus');
+
+  try {
+    statusEl.textContent = 'import en cours...';
+
+    const text = await readFileText(file);
+
+    const isProbablyGPX =
+      (file.name && file.name.toLowerCase().endsWith(".gpx")) ||
+      (typeof text === "string" && (
+        text.trim().startsWith("<gpx") ||
+        text.includes("<trk") ||
+        text.includes("<trkpt")
+      ));
+
+    if(isProbablyGPX){
+      const xml = new DOMParser().parseFromString(text, "text/xml");
+      geojson = convertGpxToGeoJSONFromXml(xml);
+    } else {
+      geojson = JSON.parse(text);
     }
-  } else {
-    alert("Aucun trajet à afficher.");
+
+    if(!geojson || !geojson.features || !geojson.features.length){
+      statusEl.textContent = 'Aucune trace trouvée';
+      alert("Aucune trace exploitable trouvée.");
+      return;
+    }
+
+    // Reset
+    manualPoints = [];
+    manualRouteCoords = [];
+    routeLayer.clearLayers();
+    markers.clearLayers();
+    editableMarkers.clearLayers();
+
+    let coords = [];
+
+    geojson.features.forEach(f=>{
+      if(!f.geometry) return;
+      if(f.geometry.type === "LineString") coords.push(...f.geometry.coordinates);
+      if(f.geometry.type === "MultiLineString")
+        f.geometry.coordinates.forEach(seg=>coords.push(...seg));
+      if(f.geometry.type === "Point") coords.push(f.geometry.coordinates);
+    });
+
+    if(!coords.length){
+      statusEl.textContent = 'Aucune trace trouvée';
+      alert("Trace non lisible.");
+      return;
+    }
+
+    coords.forEach(c=>{
+      if(c.length >= 2){
+        manualRouteCoords.push([ c[1], c[0], c[2] || 0 ]);
+      }
+    });
+
+    const latlngs = manualRouteCoords.map(c=>[c[0],c[1]]);
+
+    routeLayer.clearLayers();
+    L.polyline(latlngs, { color:"red", weight:4 }).addTo(routeLayer);
+
+    createEditableMarkersFromCoords(latlngs);
+    map.fitBounds(latlngs, { padding:[20,20] });
+    drawElevation(manualRouteCoords.map(c=>c[2]||0), latlngs);
+
+    manualPoints = [];
+
+    statusEl.textContent = 'Import OK';
+    setTimeout(()=> statusEl.textContent = '', 1800);
+
+  } catch(err){
+    console.error("Erreur import GPX:", err);
+    statusEl.textContent = 'Erreur import';
+    alert("Erreur durant l'import : " + err.message);
   }
 }
 
-// ✅ Affichage du bouton uniquement quand une route existe
-function setRecenterButtonVisible(visible){
-  const btn = document.getElementById("btn-recentrer-trajet");
-  if(!btn) return;
-  btn.style.display = visible ? "inline-block" : "none";
+
+
+/* wire hidden file input + visible button */
+const importFileInput = document.getElementById('importFile');
+const openFileBtn = document.getElementById('openFileBtn');
+openFileBtn.addEventListener('click', () => {
+  // reset to allow re-import same file
+  importFileInput.value = '';
+  importFileInput.click();
+});
+// on change -> process file
+importFileInput.addEventListener('change', (evt) => {
+  const file = evt.target.files && evt.target.files[0];
+  if(file) handleFileImport(file);
+});
+
+/* optional: drag/drop for desktop */
+document.addEventListener('dragover', (e)=>{ e.preventDefault(); });
+document.addEventListener('drop', (e)=>{ e.preventDefault(); if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length){ handleFileImport(e.dataTransfer.files[0]); } });
+
+/* --------------------- EXPORT GPX / GEOJSON --------------------- */
+function exportGeoJSON(){
+  if(!manualRouteCoords.length) return alert("Aucune trace à exporter");
+  const geo = { type:"FeatureCollection", features:[{ type:"Feature", geometry:{ type:"LineString", coordinates: manualRouteCoords.map(c=>[c[1],c[0],c[2]||0]) }, properties:{} }]};
+  const blob = new Blob([JSON.stringify(geo)],{ type:"application/json" });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "trace.geojson"; a.click();
 }
-</script>
 
-<!-- ========================= -->
-<!-- SCRIPT METEOBLUE (AJOUTÉ PLUS TARD À L’ÉTAPE 4) -->
-<!-- ========================= -->
-<script>
-(function () {
-    const input = document.getElementById("parking-depart");
-    if (!input) return;
+function exportGPX(){
+  if(manualRouteCoords.length < 2) return alert("Aucune trace complète à exporter");
+  const geo = { type:"FeatureCollection", features:[{ type:"Feature", geometry:{ type:"LineString", coordinates: manualRouteCoords.map(c=>[c[1],c[0],c[2]||0]) }, properties:{ name:"Trace complète ORS" } }]};
+  const gpx = togpx(geo);
+  const blob = new Blob([gpx], { type:"application/gpx+xml" });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "trace_complete.gpx"; a.click();
 
-    let lastValue = "";
+  // injection IBP (conserve le comportement existant)
+  try {
+    const file = new File([blob],"trace_complete.gpx",{ type:"application/gpx+xml" });
+    const dt = new DataTransfer(); dt.items.add(file);
+    document.getElementById('ibpFile').files = dt.files;
+    document.getElementById('formuploadajax').dispatchEvent(new Event('submit', { bubbles:true, cancelable:true }));
+    document.getElementById('obtain').innerHTML = "⏳ Calcul IBP en cours (GPX COMPLET envoyé)...";
+  } catch(err){ console.error("Erreur injection IBP:", err); }
+}
 
-    input.addEventListener("blur", function () {
-        const valeur = input.value.trim();
-        if (!valeur || valeur === lastValue) return;
-        lastValue = valeur;
+/* --------------------- refresh / markers / édition --------------------- */
+function refreshMarkers(){
+  editPointsLayer.clearLayers();
 
-        fetch("https://form-rando-meteoblue.vercel.app/api/meteoblue")
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (data) {
-                if (data && data.signedUrl) {
-                    // ✅ OUVERTURE DE METEOBLUE (PAS DE L’API)
-                    window.open(data.signedUrl, "_blank", "noopener");
-                } else {
-                    console.error("signedUrl manquante", data);
-                }
-            })
-            .catch(function (err) {
-                console.error("Erreur Meteoblue :", err);
-            });
+  manualPoints.forEach((p, idx) => {
+
+    const m = L.circleMarker(
+      [p[1], p[0]],
+      { radius:4, color:null, weight:0, fillColor:"#c7302a", fillOpacity:0.9 }
+    ).addTo(editPointsLayer);
+
+    m.on('contextmenu', () => {
+      manualPoints.splice(idx,1);
+      rebuildManualRouteFromPoints();
+      refreshMarkers();
     });
+
+  });
+}
+
+
+function removeLastPoint(){ if(!manualPoints.length) return; manualPoints.pop(); rebuildManualRouteFromPoints(); refreshMarkers(); }
+function clearAll(){
+  manualPoints=[]; manualRouteCoords=[]; routeLayer.clearLayers(); markers.clearLayers(); editableMarkers.clearLayers();editPointsLayer.clearLayers();   // ← AJOUT ICI
+  if(markerA){ straightLineLayer.removeLayer(markerA); markerA=null; A=null; }
+  if(markerB){ straightLineLayer.removeLayer(markerB); markerB=null; B=null; }
+  if(straightLine){ straightLineLayer.removeLayer(straightLine); straightLine=null; }
+  document.getElementById('distance').innerHTML = "";
+  if(elevationChart) elevationChart.destroy();
+  clearSavedRoute();
+}
+
+function createEditableMarkersFromCoords(latlngs){
+  editableMarkers.clearLayers();
+
+  latlngs.forEach((ll, idx) => {
+
+    // --- POINT EDITABLE VISUEL (dans la couche "Points manuels") ---
+    const mk = L.circleMarker([ll[0], ll[1]], {
+      radius:4,
+      color:null,
+      weight:0,
+      fillColor:"#2a66c7",
+      fillOpacity:1
+    }).addTo(markers);   // <-- IMPORTANT : dans markers, donc supprimable/masquable
+
+
+    // --- PROXY DRAG INVISIBLE (reste dans editableMarkers) ---
+    const proxy = L.marker([ll[0], ll[1]], {
+      opacity:0,
+      draggable:true
+    }).addTo(editableMarkers);
+
+    // sync visible point during drag
+    proxy.on('drag', (e) => {
+      mk.setLatLng(e.target.getLatLng());
+    });
+
+    // update route after drag end
+    proxy.on('dragend', (e) => {
+      const newLatLng = e.target.getLatLng();
+
+      // update the coords in the main route array
+      if (manualRouteCoords[idx]) {
+        manualRouteCoords[idx][0] = newLatLng.lat;
+        manualRouteCoords[idx][1] = newLatLng.lng;
+      }
+
+      // redraw polyline
+      routeLayer.clearLayers();
+      const latlngsNow = manualRouteCoords.map(c => [c[0], c[1]]);
+      L.polyline(latlngsNow, { color:"green", weight:4 }).addTo(routeLayer);
+
+      // redraw elevation profile
+      drawElevation(
+        manualRouteCoords.map(c => c[2] || 0),
+        latlngsNow
+      );
+
+      // save local
+      saveRouteLocal();
+    });
+
+  });
+}
+
+/* --------------------- RECORDING GPS --------------------- */
+let gpsTracking=false, recordedTrace=[];
+function toggleAutoRecording(){
+  gpsTracking = !gpsTracking;
+  const btn = document.getElementById('recBtn');
+  if(!btn) return;
+  if(gpsTracking){ recordedTrace=[]; btn.classList.add('recording'); btn.innerHTML='⏹️'; showTooltip("Enregistrement GPS démarré"); }
+  else {
+    btn.classList.remove('recording'); btn.innerHTML='▶️';
+    if(recordedTrace.length>2){
+      manualRouteCoords = recordedTrace.map(p=>[p.lat,p.lng,p.ele||0]);
+      routeLayer.clearLayers();
+      L.polyline(recordedTrace.map(p=>[p.lat,p.lng]),{color:"green",weight:4}).addTo(routeLayer);
+      createEditableMarkersFromCoords(recordedTrace.map(p=>[p.lat,p.lng]));
+      drawElevation(recordedTrace.map(p=>p.ele||0), recordedTrace.map(p=>[p.lat,p.lng]));
+      saveRouteLocal();
+    }
+    showTooltip("Enregistrement GPS arrêté");
+  }
+}
+if(navigator.geolocation){
+  navigator.geolocation.watchPosition(p=>{
+    if(gpsTracking) recordedTrace.push({ lat:p.coords.latitude, lng:p.coords.longitude, ele:p.coords.altitude||0 });
+  }, err=>{}, { enableHighAccuracy:true });
+}
+
+/* --------------------- SEARCH (Nominatim) --------------------- */
+let searchMarkerGroup = L.layerGroup().addTo(map);
+async function searchLocation(){
+  const q = document.getElementById('searchInput').value.trim();
+  const resultsDiv = document.getElementById('searchResults');
+  if(!q){ resultsDiv.style.display='none'; resultsDiv.innerHTML=''; return alert("Entrez un nom de lieu"); }
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&q=${encodeURIComponent(q)}&addressdetails=1&accept-language=fr`;
+  try{
+    resultsDiv.style.display='block';
+    resultsDiv.innerHTML = '<div style="padding:10px;color:#666;font-size:13px;">🔎 Recherche...</div>';
+    const res = await fetch(url, { headers:{ 'Accept':'application/json' }});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    if(!data || !data.length){ resultsDiv.innerHTML = '<div style="padding:10px;color:#666;font-size:13px;">Aucun résultat.</div>'; return; }
+    resultsDiv.innerHTML = '';
+    data.forEach((place, idx) => {
+      const display = place.display_name || (place.name || 'Lieu inconnu');
+      const lat = parseFloat(place.lat), lon = parseFloat(place.lon);
+      const type = place.type || place.class || '';
+      const item = document.createElement('div');
+      item.className = 'result';
+      item.style.padding='8px';
+      item.style.borderBottom='1px solid rgba(0,0,0,0.06)';
+      item.innerHTML = `<div style="font-size:13px">${display}</div><div style="font-size:12px;color:#666">${type}</div>`;
+      item.onclick = () => {
+        map.setView([lat,lon], Math.max(13, place.zoom?+place.zoom:14));
+        searchMarkerGroup.clearLayers();
+        L.marker([lat,lon]).addTo(searchMarkerGroup).bindPopup(`<b>${display}</b>`).openPopup();
+        resultsDiv.style.display='none'; resultsDiv.innerHTML='';
+      };
+      resultsDiv.appendChild(item);
+    });
+    // center on first
+    const first = data[0];
+    if(first){ map.setView([parseFloat(first.lat), parseFloat(first.lon)], Math.max(13, first.zoom?+first.zoom:14)); searchMarkerGroup.clearLayers(); L.marker([parseFloat(first.lat), parseFloat(first.lon)]).addTo(searchMarkerGroup).bindPopup(first.display_name||'').openPopup(); }
+  } catch(err){
+    console.error("searchLocation error:", err);
+    resultsDiv.style.display='block';
+    resultsDiv.innerHTML = `<div style="padding:10px;color:#900;font-size:13px;">Erreur de recherche (${err.message})</div>`;
+  }
+}
+document.getElementById('searchInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); searchLocation(); } });
+map.on('click', () => { const resultsDiv=document.getElementById('searchResults'); if(resultsDiv){ resultsDiv.style.display='none'; resultsDiv.innerHTML=''; } });
+document.addEventListener('click', (e) => { const topBar=document.querySelector('.top-bar'); const resultsDiv=document.getElementById('searchResults'); if(!topBar.contains(e.target) && resultsDiv){ resultsDiv.style.display='none'; resultsDiv.innerHTML=''; } });
+
+/* --------------------- IMPORT/EXPORT IBP FORM SUBMIT (conserve comportement) --------------------- */
+$("#formuploadajax").on("submit", function(e){
+  e.preventDefault();
+  var formData = new FormData(this);
+  $.ajax({
+    url: "https://www.ibpindex.com/api/",
+    type: "post",
+    dataType: "json",
+    data: formData,
+    cache: false,
+    contentType: false,
+    processData: false
+  }).done(function(javascript_json){
+    try {
+      let weobtain = `<h3>Résultat IBP HKG</h3><b>Référence :</b> ${javascript_json.reference}<br><b>Fichier :</b> ${javascript_json.filename}<br><br>🥾 <b>IBP Randonnée (HKG) :</b> <span style="font-size:22px;color:${'#2a66c7'}">${javascript_json.hiking.ibp}</span><br><br>⬆️ <b>Dénivelé cumulé :</b> ${javascript_json.hiking.accuclimb} m<br>⏱ <b>Temps arrêt :</b> ${javascript_json.hiking.totalstoptime} s`;
+      document.getElementById("obtain").innerHTML = weobtain;
+    } catch(err){
+      document.getElementById("obtain").innerHTML = "✅ Résultat reçu (format inattendu).";
+      console.error("IBP parse error:", err, javascript_json);
+    }
+  }).fail(function(){ document.getElementById("obtain").innerHTML = "❌ Erreur lors du calcul IBP."; });
+});
+
+/* --------------------- HELPERS: tooltip / toast --------------------- */
+function showTooltip(text, duration=1600){
+  const t = document.getElementById('mobileTooltip');
+  t.innerText = text;
+  t.style.display = 'block';
+  t.style.left = '50%';
+  t.style.transform = 'translateX(-50%)';
+  setTimeout(()=>{ t.style.display = 'none'; }, duration);
+}
+
+/* --------------------- SAVE / LOAD ROUTE (localStorage) --------------------- */
+const STORAGE_KEY = "traceur_manual_route_v1";
+function saveRouteLocal(){
+  try{
+    if(!manualRouteCoords || !manualRouteCoords.length){ localStorage.removeItem(STORAGE_KEY); return; }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(manualRouteCoords));
+  } catch(e){ console.warn("saveRouteLocal fail:",e); }
+}
+function loadRouteLocal(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    manualRouteCoords = JSON.parse(raw);
+    if(!manualRouteCoords || !manualRouteCoords.length) return false;
+    const latlngs = manualRouteCoords.map(c=>[c[0],c[1]]);
+    routeLayer.clearLayers();
+    L.polyline(latlngs, { color:"green", weight:4 }).addTo(routeLayer);
+    createEditableMarkersFromCoords(latlngs);
+    drawElevation(manualRouteCoords.map(c=>c[2]||0), latlngs);
+    map.fitBounds(latlngs, { padding:[20,20] });
+    return true;
+  } catch(e){ console.warn("loadRouteLocal fail:",e); return false; }
+}
+function clearSavedRoute(){ try{ localStorage.removeItem(STORAGE_KEY); }catch(e){} }
+
+/* --------------------- CENTER GPS --------------------- */
+function centerGPS(){ if(gpsMarker) map.setView(gpsMarker.getLatLng(),14); }
+
+/* --------------------- UI small functions --------------------- */
+function toggleInfoPanel(){
+  const panel = document.querySelector('.container');
+  if(!panel) return;
+  panel.classList.toggle('open');
+  panel.classList.toggle('closed');
+}
+function closeStartupPopup(){ document.getElementById('startupPopup').style.display = 'none'; }
+
+/* --------------------- INIT on load --------------------- */
+window.addEventListener('load', () => {
+  // show startup
+  document.getElementById("startupPopup").style.display = "flex";
+  // try to restore previously saved trace
+  if(loadRouteLocal()){ showTooltip("Trace restaurée depuis la session précédente"); }
+  console.log("Traceur chargé (version rev).");
+});
+
+/* ==== DOCK AMOVIBLE (SWIPE DOWN) — FIX LEAFLET MOBILE ==== */
+(function enableDockSwipe(){
+
+  const dock = document.querySelector('.leaflet-control.custom-panel');
+  if(!dock) return;
+
+  const handle = dock.querySelector('.icon-grid');
+  if(!handle) return;
+
+  let startY = 0;
+  let deltaY = 0;
+
+  handle.addEventListener('touchstart', e => {
+    if(e.touches.length !== 1) return;
+    startY = e.touches[0].clientY;
+    deltaY = 0;
+    e.stopPropagation();
+  }, { passive:true });
+
+  handle.addEventListener('touchmove', e => {
+    if(!startY) return;
+    deltaY = e.touches[0].clientY - startY;
+    e.stopPropagation();
+  }, { passive:true });
+
+  handle.addEventListener('touchend', e => {
+    if(Math.abs(deltaY) < 30) return;
+
+    if(deltaY > 0){
+      dock.classList.add('closed');   // swipe down
+    } else {
+      dock.classList.remove('closed'); // swipe up
+    }
+
+    startY = 0;
+    deltaY = 0;
+    e.stopPropagation();
+  });
+
 })();
+
+document.querySelector('.dock-handle')?.addEventListener('click', () => {
+  document.querySelector('.leaflet-control.custom-panel')?.classList.toggle('closed');
+});
+(function enableInfoHandle(){
+  const panel = document.querySelector('.container');
+  const handle = document.querySelector('.info-handle');
+  if(!panel || !handle) return;
+
+  // état initial
+  panel.classList.add('closed');
+
+  handle.addEventListener('click', () => {
+    panel.classList.toggle('open');
+    panel.classList.toggle('closed');
+  });
+})();
+
+
 </script>
-
-
 
 </body>
 </html>
