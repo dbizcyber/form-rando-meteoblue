@@ -435,17 +435,6 @@ hr {
 <label for="parking-depart">Parking de départ Randonnée : (Saisissez un nom de village et ajustez le parking avec votre souris sur la carte)</label>
 <input type="text" id="parking-depart" maxlength="200" placeholder="Ex: Bonnieux...">
 <button type="button" onclick="updateParkingMap()">Afficher le parking</button>
-    <div id="meteoblue-widget" style="display:none;margin-top:20px;">
-  <iframe
-    id="meteoblue-frame"
-    width="100%"
-    height="500"
-    frameborder="0"
-    scrolling="no"
-    allowtransparency="true">
-  </iframe>
-</div>
-
 
 <!-- La carte apparaîtra ici + bouton recentrer trajet -->
 <div id="parkingMap" style="display:none; margin-top:15px; width:100%; height:400px; border-radius:10px; overflow:hidden;"></div>
@@ -1025,43 +1014,26 @@ function updatePosition(lat, lon){
   const captionEl = document.getElementById('parkingMapCaption');
   if(captionEl) captionEl.innerHTML = `<strong>GPS :</strong> ${lat.toFixed(6)}, ${lon.toFixed(6)} — <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" rel="noopener">Ouvrir dans Google Maps</a>`;
 
-  async function updatePosition(lat, lon){
-  window.lastLat = lat;
-  window.lastLon = lon;
-  lastMapLink = `https://www.google.com/maps?q=${lat},${lon}`;
-
-  if(!window.leafletMap) return;
-
-  // Marqueur parking rando
-  if(!window.leafletMarker){
-    window.leafletMarker = L.marker([lat, lon], { draggable: true })
-      .addTo(window.leafletMap)
-      .on('dragend', function(e){
-        const p = e.target.getLatLng();
-        updatePosition(p.lat, p.lng);
-      });
-  } else {
-    window.leafletMarker.setLatLng([lat, lon]);
-  }
-
-  // Calcul et affichage de l’itinéraire voiture
-  const route = await getDrivingRoute(HOME_LAT, HOME_LON, lat, lon);
-  if(route){
-    drawRoute(route.coords);
-
-    const kmAR = Math.round(route.distance_km * 2);
-    const trajetInput = document.getElementById("trajet-km");
-    if(trajetInput){
-      trajetInput.value = kmAR;
-      calculerCouts();
+  getDrivingRoute(HOME_LAT, HOME_LON, lat, lon).then(res =>{
+    if(res){
+      const kmAR = (res.distance_km * 2).toFixed(1);
+      const el = document.getElementById("trajet-km");
+      if(el) el.value = kmAR;
+      drawRoute(res.coords);
+    } else {
+      // fallback: haversine
+      const R = 6371;
+      const dLat = (lat - HOME_LAT) * Math.PI/180;
+      const dLon = (lon - HOME_LON) * Math.PI/180;
+      const a = Math.sin(dLat/2)**2 + Math.cos(HOME_LAT*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
+      const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const el = document.getElementById("trajet-km");
+      if(el) el.value = (d*2).toFixed(1);
+      try{ if(window.routeLayer){ window.leafletMap.removeLayer(window.routeLayer); window.routeLayer = null; } }catch(e){}
     }
-
-    // Recentrage automatique
-    const bounds = L.latLngBounds(route.coords);
-    window.leafletMap.fitBounds(bounds, { padding:[40,40] });
-  }
+    calculerCouts();
+  });
 }
-
 
 function updateParkingMap(){
   const query = document.getElementById('parking-depart').value.trim();
@@ -1127,39 +1099,42 @@ function setRecenterButtonVisible(visible){
   btn.style.display = visible ? "inline-block" : "none";
 }
 </script>
+
+<!-- ========================= -->
+<!-- SCRIPT METEOBLUE (AJOUTÉ PLUS TARD À L’ÉTAPE 4) -->
+<!-- ========================= -->
 <script>
 (function () {
-  const input = document.getElementById("parking-depart");
-  const frame = document.getElementById("meteoblue-frame");
-  const box = document.getElementById("meteoblue-widget");
+    const input = document.getElementById("parking-depart");
+    if (!input) return;
 
-  if (!input || !frame || !box) {
-    console.error("Meteoblue: éléments introuvables");
-    return;
-  }
+    let lastValue = "";
 
-  let widgetCharge = false;
+    input.addEventListener("blur", function () {
+        const valeur = input.value.trim();
+        if (!valeur || valeur === lastValue) return;
+        lastValue = valeur;
 
-  input.addEventListener("blur", () => {
-    if (widgetCharge) return;
-
-    if (!window.lastLat || !window.lastLon) {
-      console.warn("Meteoblue: coordonnées GPS non disponibles");
-      return;
-    }
-
-    const lat = window.lastLat.toFixed(4);
-    const lon = window.lastLon.toFixed(4);
-
-    frame.src =
-      `https://www.meteoblue.com/fr/meteo/widget/three/` +
-      `${lat}N${lon}E` +
-      `?geoloc=detect&days=5&tempunit=C&windunit=kmh&precipunit=mm`;
-
-    box.style.display = "block";
-    widgetCharge = true;
-  });
+        fetch("https://form-rando-meteoblue.vercel.app/api/meteoblue")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data && data.signedUrl) {
+                    // ✅ OUVERTURE DE METEOBLUE (PAS DE L’API)
+                    window.open(data.signedUrl, "_blank", "noopener");
+                } else {
+                    console.error("signedUrl manquante", data);
+                }
+            })
+            .catch(function (err) {
+                console.error("Erreur Meteoblue :", err);
+            });
+    });
 })();
 </script>
+
+
+
 </body>
 </html>
