@@ -1025,26 +1025,43 @@ function updatePosition(lat, lon){
   const captionEl = document.getElementById('parkingMapCaption');
   if(captionEl) captionEl.innerHTML = `<strong>GPS :</strong> ${lat.toFixed(6)}, ${lon.toFixed(6)} — <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" rel="noopener">Ouvrir dans Google Maps</a>`;
 
-  getDrivingRoute(HOME_LAT, HOME_LON, lat, lon).then(res =>{
-    if(res){
-      const kmAR = (res.distance_km * 2).toFixed(1);
-      const el = document.getElementById("trajet-km");
-      if(el) el.value = kmAR;
-      drawRoute(res.coords);
-    } else {
-      // fallback: haversine
-      const R = 6371;
-      const dLat = (lat - HOME_LAT) * Math.PI/180;
-      const dLon = (lon - HOME_LON) * Math.PI/180;
-      const a = Math.sin(dLat/2)**2 + Math.cos(HOME_LAT*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
-      const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      const el = document.getElementById("trajet-km");
-      if(el) el.value = (d*2).toFixed(1);
-      try{ if(window.routeLayer){ window.leafletMap.removeLayer(window.routeLayer); window.routeLayer = null; } }catch(e){}
+  async function updatePosition(lat, lon){
+  window.lastLat = lat;
+  window.lastLon = lon;
+  lastMapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
+  if(!window.leafletMap) return;
+
+  // Marqueur parking rando
+  if(!window.leafletMarker){
+    window.leafletMarker = L.marker([lat, lon], { draggable: true })
+      .addTo(window.leafletMap)
+      .on('dragend', function(e){
+        const p = e.target.getLatLng();
+        updatePosition(p.lat, p.lng);
+      });
+  } else {
+    window.leafletMarker.setLatLng([lat, lon]);
+  }
+
+  // Calcul et affichage de l’itinéraire voiture
+  const route = await getDrivingRoute(HOME_LAT, HOME_LON, lat, lon);
+  if(route){
+    drawRoute(route.coords);
+
+    const kmAR = Math.round(route.distance_km * 2);
+    const trajetInput = document.getElementById("trajet-km");
+    if(trajetInput){
+      trajetInput.value = kmAR;
+      calculerCouts();
     }
-    calculerCouts();
-  });
+
+    // Recentrage automatique
+    const bounds = L.latLngBounds(route.coords);
+    window.leafletMap.fitBounds(bounds, { padding:[40,40] });
+  }
 }
+
 
 function updateParkingMap(){
   const query = document.getElementById('parking-depart').value.trim();
