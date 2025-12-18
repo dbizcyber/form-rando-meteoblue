@@ -822,7 +822,6 @@ function genererTexte(){
   const technicite = getLibelleTechnicite(techniciteValeur);
   const risqueValeur = parseInt(document.getElementById("risque")?.value) || 0;
   const risque = getLibelleRisque(risqueValeur);
-
   const remarques = getValeurOuRouge("remarques");
   const organisateur = document.getElementById("organisateur-label")?.textContent || '<span style="color:red">Non renseigné</span>';
   const blocK = getValeurOuRouge("bloc");
@@ -867,8 +866,6 @@ Kilométrage voiture A/R : ${trajetkm} km
 🏁 Parking de Départ de la randonnée : ${parkingDepart}
 ${lastMapLink ? `📍 Lien Google Maps : ${lastMapLink}` : ""}
 ${window.lastLat ? `<br>📌 Coordonnées GPS : ${window.lastLat}, ${window.lastLon}` : ""}<br>
-
-
 Coût du Trajet : ${totalTrajet} €
 Coût de l'Autoroute : ${coutAutoroute} €
 Coût Trajet Total : ${coutTotal} €
