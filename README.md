@@ -1,1 +1,1 @@
-ajout script sur index pour meteoblue
+ajout index pour open-meteo
