@@ -1,20 +1,12 @@
+<!doctype html>
+<html lang="fr">
+<head>...</head>
+<body>
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Formulaire randonnée – Meteoblue</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-
-<h1>Formulaire randonnée</h1>
-
-<!-- ========================= -->
-<!-- ZONE FORMULAIRE EXISTANT -->
-<!-- ========================= -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire de Randonnée - Moderne Pastel 12.1 du 261125</title>
+<title>FdR- Meteo - Moderne Pastel 12.2 du 181225</title>
 
 <style>
 body {
@@ -434,10 +426,19 @@ hr {
 
 <label for="parking-depart">Parking de départ Randonnée : (Saisissez un nom de village et ajustez le parking avec votre souris sur la carte)</label>
 <input type="text" id="parking-depart" maxlength="200" placeholder="Ex: Bonnieux...">
-<button type="button" onclick="updateParkingMap()">Afficher le parking</button>
+<button type="button" onclick="updateParkingMap()">Afficher le parking et la meteo sous la carte </button>
 
 <!-- La carte apparaîtra ici + bouton recentrer trajet -->
 <div id="parkingMap" style="display:none; margin-top:15px; width:100%; height:400px; border-radius:10px; overflow:hidden;"></div>
+<!-- ✅ MÉTÉO OPEN-METEO -->
+<h2>🌦️ Météo au parking de départ - prévisions à 7 jours </h2>
+<h5> Données open source : Open_meteo/Météo-France modèles non commerciaux AROME & ARPEGE </h5>
+<h5>Si le jour de rando est inclus dans l'intervalle, les prévisions seront surlignées en jaune<h5>
+<div id="meteo-openmeteo" style="display:none;margin-top:15px;padding:12px;border-radius:10px;background:#eef7f7;">
+  
+  <div id="meteo-current"></div>
+  <div id="meteo-forecast"></div>
+</div>
 <!-- Bouton Recentrer : utilisation d'onclick pour fiabilité -->
 <button type="button" id="btn-recentrer-trajet" style="display:none; margin-top:10px;" onclick="recenterRoute()">
   📍 Recentrer sur le trajet
@@ -547,6 +548,12 @@ hr {
   .contenu-normal p {
     margin-bottom: 1rem;
   }
+  .meteo-rando-day {
+  background: #fff3cd;
+  border-left: 5px solid #f0ad4e;
+  padding: 6px;
+  border-radius: 6px;
+}
 </style>
 
 <!-- FORMULAIRE -->
@@ -650,6 +657,19 @@ hr {
 
 <!-- Script unique et ordonné -->
 <script>
+  window.meteoJourRando = null;
+
+  function getDateRando(){
+  const el = document.getElementById("date");
+  if(!el || !el.value) return null;
+  return el.value.slice(0, 10); // YYYY-MM-DD
+}
+function normalizeDate(d){
+  if(!d) return null;
+  return d.toString().slice(0, 10); // YYYY-MM-DD
+}
+
+
 /* --- Recherche rando (autocomplétion légère) --- */
 const selectBackup = document.getElementById('nom');
 const baseOptions = Array.from(selectBackup.options).map(o => ({value: o.value, text: o.text}));
@@ -806,11 +826,36 @@ function genererTexte(){
   const remarques = getValeurOuRouge("remarques");
   const organisateur = document.getElementById("organisateur-label")?.textContent || '<span style="color:red">Non renseigné</span>';
   const blocK = getValeurOuRouge("bloc");
+  let resumeMeteo = "🌤️ Météo prévue : <span style='color:red'>Non disponible</span>";
+let alerteVent = "";
+
+if (window.meteoJourRando) {
+  const m = window.meteoJourRando;
+
+  const ventTxt = (m.vent !== null && m.vent !== undefined)
+    ? `💨 Vent ${m.vent} km/h`
+    : "💨 Vent N/D";
+
+  const rafalesTxt = (m.rafales !== null && m.rafales !== undefined)
+    ? `🌪 Rafales ${m.rafales} km/h`
+    : "";
+
+  resumeMeteo =
+    `🌤️ Météo prévue le ${formatDateFR(m.date)} : ` +
+    `${m.label}, ${m.tmin}°C / ${m.tmax}°C, ` +
+    `☔ ${m.pluie}% — ${ventTxt} ${rafalesTxt}`;
+
+  if (m.rafales >= 60) {
+    alerteVent = " ⚠️ ATTENTION : rafales fortes, vigilance randonnée !";
+  }
+}
+
 
   const resume = `
 Feuille de route : ${jour} ${dateFormatted} — ${nomRando}
 Nom de la randonnée : ${nomRando}
 📆 Date de la randonnée : ${dateFormatted}
+    ${resumeMeteo}${alerteVent}
 
 🅿️ Parking Covoiturage : ${lieuRV}
 🕞 Heure de rendez-vous : ${heureRV}
@@ -1037,47 +1082,63 @@ function updatePosition(lat, lon){
 
 function updateParkingMap(){
   const query = document.getElementById('parking-depart').value.trim();
-  if(!query){ alert("Saisir un parking."); return; }
+  if(query.length < 3) return;
 
   fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
-    .then(r=>r.json())
-    .then(results=>{
-      if(!results || !results.length){ alert("Adresse introuvable."); return; }
+    .then(r => r.json())
+    .then(results => {
+      if(!results || !results.length){
+        console.warn("Nominatim : aucun résultat");
+        return;
+      }
+
       const lat = parseFloat(results[0].lat);
       const lon = parseFloat(results[0].lon);
 
+      /* ===== METEO ===== */
+      updateOpenMeteo(lat, lon);
+
+      /* ===== CARTE ===== */
       const mapDiv = document.getElementById('parkingMap');
-      if(mapDiv){ mapDiv.style.display = 'block'; mapDiv.style.width='100%'; mapDiv.style.height='400px'; }
+      if(mapDiv){
+        mapDiv.style.display = 'block';
+        mapDiv.style.width = '100%';
+        mapDiv.style.height = '400px';
+      }
 
       if(!window.leafletMap){
         window.leafletMap = L.map('parkingMap').setView([lat, lon], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'&copy; OpenStreetMap contributors'}).addTo(window.leafletMap);
-
-        window.leafletMap.on('click', e =>{
-          const lt = e.latlng.lat, ln = e.latlng.lng;
-          if(!window.leafletMarker){
-            window.leafletMarker = L.marker([lt, ln], {draggable:true}).addTo(window.leafletMap);
-            window.leafletMarker.on('dragend', e =>{ const p = e.target.getLatLng(); updatePosition(p.lat, p.lng); });
-          } else {
-            window.leafletMarker.setLatLng([lt, ln]);
-          }
-          updatePosition(lt, ln);
-        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+          maxZoom:19,
+          attribution:'&copy; OpenStreetMap contributors'
+        }).addTo(window.leafletMap);
       } else {
         window.leafletMap.setView([lat, lon], 13);
       }
 
+      /* ===== MARKER ===== */
       if(!window.leafletMarker){
         window.leafletMarker = L.marker([lat, lon], {draggable:true}).addTo(window.leafletMap);
-        window.leafletMarker.on('dragend', e =>{ const p = e.target.getLatLng(); updatePosition(p.lat, p.lng); });
+        window.leafletMarker.on('dragend', e =>{
+          const p = e.target.getLatLng();
+
+          // 🔁 TRACÉ + KM + METEO
+          updatePosition(p.lat, p.lng);
+          updateOpenMeteo(p.lat, p.lng);
+        });
       } else {
         window.leafletMarker.setLatLng([lat, lon]);
       }
 
+      /* ===== 🔥 TRACÉ A/R + DISTANCE 🔥 ===== */
       updatePosition(lat, lon);
+
     })
-    .catch(err => { console.error(err); alert('Erreur Nominatim'); });
+    .catch(err => {
+      console.error("Nominatim error:", err);
+    });
 }
+
 // ✅ Recentrage manuel du trajet (bouton)
 function recenterRoute(){
   if(window.leafletMap && window.routeLayer){
@@ -1098,43 +1159,94 @@ function setRecenterButtonVisible(visible){
   if(!btn) return;
   btn.style.display = visible ? "inline-block" : "none";
 }
-</script>
+function weatherLabel(code){
+  if(code === 0) return "☀️ Soleil";
+  if([1,2].includes(code)) return "🌤️ Peu nuageux";
+  if(code === 3) return "☁️ Couvert";
+  if([45,48].includes(code)) return "🌫️ Brouillard";
+  if([51,53,55,61,63,65].includes(code)) return "🌧️ Pluie";
+  if([71,73,75].includes(code)) return "❄️ Neige";
+  if(code >= 95) return "⛈️ Orage";
+  return "🌥️ Variable";
+}
+function formatDateFR(dateStr){
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("fr-FR");
+}
 
-<!-- ========================= -->
-<!-- SCRIPT METEOBLUE (AJOUTÉ PLUS TARD À L’ÉTAPE 4) -->
-<!-- ========================= -->
-<script>
-(function () {
-    const input = document.getElementById("parking-depart");
-    if (!input) return;
+function updateOpenMeteo(lat, lon){
+  window.meteoJourRando = null;
 
-    let lastValue = "";
+  const url =
+    "https://api.open-meteo.com/v1/forecast" +
+    `?latitude=${lat}&longitude=${lon}` +
+    "&daily=temperature_2m_max,temperature_2m_min," +
+    "precipitation_sum,precipitation_probability_max,weathercode," +
+    "windspeed_10m_max,windgusts_10m_max" +
+    "&forecast_days=7" +
+    "&timezone=Europe/Paris";
 
-    input.addEventListener("blur", function () {
-        const valeur = input.value.trim();
-        if (!valeur || valeur === lastValue) return;
-        lastValue = valeur;
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
 
-        fetch("https://form-rando-meteoblue.vercel.app/api/meteoblue")
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (data) {
-                if (data && data.signedUrl) {
-                    // ✅ OUVERTURE DE METEOBLUE (PAS DE L’API)
-                    window.open(data.signedUrl, "_blank", "noopener");
-                } else {
-                    console.error("signedUrl manquante", data);
-                }
-            })
-            .catch(function (err) {
-                console.error("Erreur Meteoblue :", err);
-            });
+      const bloc = document.getElementById("meteo-openmeteo");
+      if(!bloc) return;
+
+      bloc.style.display = "block";
+
+      let html = "<ul>";
+      const dateRando = getDateRando();
+
+      window.meteoJourRando = null;
+
+      data.daily.time.forEach((day, i) => {
+
+        const dayNorm = normalizeDate(day);
+        const isRandoDay = dateRando && dayNorm === dateRando;
+        const cls = isRandoDay ? "meteo-rando-day" : "";
+
+        // valeurs sécurisées
+        const tmin = data.daily.temperature_2m_min?.[i];
+        const tmax = data.daily.temperature_2m_max?.[i];
+        const pluie = data.daily.precipitation_probability_max?.[i];
+        const vent = data.daily.windspeed_10m_max?.[i];
+        const rafales = data.daily.windgusts_10m_max?.[i];
+        const label = weatherLabel(data.daily.weathercode?.[i]);
+
+        // sauvegarde jour de rando
+        if(isRandoDay){
+          window.meteoJourRando = {
+            date: day,
+            label,
+            tmin,
+            tmax,
+            pluie,
+            vent,
+            rafales
+          };
+        }
+
+        html += `
+          <li class="${cls}">
+            <b>${formatDateFR(day)}</b> –
+            ${label}
+            – ${tmin ?? "—"}°C / ${tmax ?? "—"}°C
+            – ☔ ${pluie ?? "—"} %
+            – 💨 ${vent ?? "—"} km/h
+            – 🌪 ${rafales ?? "—"} km/h
+          </li>`;
+      });
+
+      html += "</ul>";
+      bloc.innerHTML = html;
+    })
+    .catch(err => {
+      console.error("Erreur Open-Meteo", err);
     });
-})();
+}
+
 </script>
-
-
-
 </body>
 </html>
+
